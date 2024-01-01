@@ -35,17 +35,31 @@
 #   For more information, please refer to <https://unlicense.org>                                                      #
 #                                                                                                                      #
 ########################################################################################################################
-from colorama import Fore, Back, Style
+from colorama import Fore, Back
 from random import randint
 from os import system
 from time import sleep
 f_color = Fore.LIGHTGREEN_EX
 
 
+def color(*args) -> None:
+    """
+    Colore le cmd.
+    """
+    for i in args:
+        print(i, end="")
+
+
+def clear() -> None:
+    """
+    Efface la console.
+    """
+    system("cls")
+
+
 def start() -> None:
     """
     Initialise le jeu : lance l'écran d'accueil avec les crédits, affiche les recommandations de jeu et colore l'écran.
-    :return: None.
     """
     color(f_color, Back.BLACK)
     print("""\n
@@ -65,31 +79,33 @@ def start() -> None:
     color(f_color)
 
 
-def end() -> None:
+def build_brd(size: tuple[int, int])\
+        -> tuple[list[list[bool | None]], list[list[bool | None]], list[list[bool | None]]]:
     """
-    Réinitialise les couleurs de l'invite de commande.
-    :return: None.
+    Construit les plateaux de jeu et retourne brd_pc, brd_player, brd_player_view.
+    :param size: tuple[int, int].
+    :return: tuple[list[list[bool | None]], list[list[bool | None]], list[list[bool | None]]].
     """
-    color(Fore.RESET, Back.RESET)
+    return [[]], [[]], [[]]
 
 
-def color(*args) -> None:
+def boat_placement_player(brd: list[list[bool | None]])\
+        -> tuple[list[list[bool | None]], dict[str: list[tuple[int, int]]]]:
     """
-    Colore le cmd.
-    :param clr_foreground: str.
-    :param clr_background: str.
-    :return: None.
+    Fait placer les bateaux à l'utilisateur et retourne son plateau et le dictionnaire qui contient ses bateaux.
+    :param brd: list[list[bool | None]].
+    :return: tuple[list[list[bool | None]], dict[str: list[tuple[int, int]]]].
     """
-    for i in args:
-        print(i, end="")
+    return [[]], {}
 
 
-def clear() -> None:
+def boat_placement_pc(brd: list[list[bool | None]]) -> tuple[list[list[bool | None]], dict[str: list[tuple[int, int]]]]:
     """
-    Efface la console.
-    :return: None.
+    Place les bateaux de l'ordinateur et retourne son plateau et le dictionnaire qui contient ses bateaux.
+    :param brd: list[list[bool | None]].
+    :return: tuple[list[list[bool | None]], dict[str: list[tuple[int, int]]]].
     """
-    system("cls")
+    return [[]], {}
 
 
 def is_hit(brd: list[list[bool | None]], target: tuple[int, int]) -> bool:
@@ -108,9 +124,8 @@ def is_hit(brd: list[list[bool | None]], target: tuple[int, int]) -> bool:
 def display_brd(brd_view: list[list[bool | None]], is_view: bool = True) -> None:
     """
     Affiche le plateau du joueur dans la console.
-    :param is_view: bool.
     :param brd_view: list[list[bool | None]].
-    :return: None.
+    :param is_view: bool.
     """
     true_color = Fore.RED
     false_color = Fore.LIGHTBLUE_EX if is_view else Fore.GREEN
@@ -143,10 +158,19 @@ def display_brd(brd_view: list[list[bool | None]], is_view: bool = True) -> None
     print("")  # retour à la ligne
 
 
+def player_round(brd: list[list[bool | None]]) -> list[list[bool | None]]:
+    """
+    Fait jouer le joueur et retourne brd_pc.
+    :param brd: list[list[bool | None]].
+    :return: list[list[bool | None]].
+    """
+    return [[]]
+
+
 def pc_round(brd: list[list[bool | None]], brd_view: list[list[bool | None]])\
         -> tuple[list[list[bool | None]], list[list[bool | None]]]:
     """
-    Fait jouer l’ordinateur.
+    Fait jouer l’ordinateur et retourne brd_player et brd_player_view.
     :param brd: list[list[bool]].
     :param brd_view: list[list[bool | None]].
     :return: tuple[list[list[bool | None]], list[list[bool | None]]].
@@ -162,23 +186,35 @@ def pc_round(brd: list[list[bool | None]], brd_view: list[list[bool | None]])\
     return brd, brd_view
 
 
-def win(brd: list[list[bool | None]], is_player_round: bool) -> bool:  # running = not win(...)
+def win(brd_player: list[list[bool | None]], brd_pc: list[list[bool | None]]) -> bool:
     """
     Arrête le jeu si le plateau (du joueur ou de l’ordi) ne contient plus de bateau et annonce le vainqueur.
-    :param brd: list[list[bool]].
-    :param running: bool.
-    :param is_player_round: bool.
+    :param brd_player: list[list[bool]].
+    :param brd_pc: list[list[bool]].
     :return: bool.
     """
-    won = True
-    for row in brd:
+    pc_won = True
+    for row in brd_player:
         for cell in row:
             if cell is False:
-                won = False
+                pc_won = False
 
-    if won and is_player_round:     # Glory on the leader
-        print("Bravo Général! Vous avez gagné !")
-    elif won:                       # Shame on the team
+    player_won = True
+    for row in brd_pc:
+        for cell in row:
+            if cell is False:
+                player_won = False
+
+    if pc_won:          # Shame on the team
         print("MAYDAY, MAYDAY, MAYDAY! Tous nos navires sont en train de couler Général! Nous avons perdu")
+    elif player_won:    # Glory on the leader
+        print("Bravo Général! Vous avez gagné !")
 
-    return won
+    return pc_won or player_won
+
+
+def end() -> None:
+    """
+    Réinitialise les couleurs de l'invite de commande.
+    """
+    color(Fore.RESET, Back.RESET)

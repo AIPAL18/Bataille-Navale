@@ -40,41 +40,20 @@ from functions import *
 
 start()
 
-brd = [[False, None, None, None, None, None, None, None, None, None],
-       [False, None, None, None, None, None, None, None, None, None],
-       [False, None, None, None, None, None, None, None, None, None],
-       [False, None, None, None, False, False, False, False, None, None],
-       [False, None, None, None, None, None, None, None, None, None],
-       [None, False, False, None, None, None, None, None, None, None],
-       [None, None, None, None, None, None, None, None, None, None],
-       [None, None, None, None, None, False, None, None, None, None],
-       [None, None, None, None, None, False, None, False, False, False],
-       [None, None, None, None, None, False, None, None, None, None]]
+brd_pc, brd_player, brd_player_view = build_brd((10, 10))
+brd_player, boat_dict_player = boat_placement_player(brd_player)
+brd_pc, boat_dict_pc = boat_placement_pc(brd_pc)
 
-brd_view = [[None, None, None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None, None, None],
-            [None, None, None, None, None, None, None, None, None, None]]
+running = True
 
-boats_dict = {
-    "pa": [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)],   # porte-avion
-    "c": [(4, 3), (5, 3), (6, 3), (7, 3)],            # croiseur
-    "ct": [(5, 7), (5, 8), (5, 9)],                   # contre-torpilleur
-    "sm": [(7, 8), (8, 8), (9, 8)],                   # sous-marin
-    "t": [(1, 5), (2, 5)],                            # torpilleur
-}
+is_player_round = bool(randint(0, 1))
 
-target = (1, 1)
-
-brd, brd_view = pc_round(brd, brd_view)
-display_brd(brd, False)
-display_brd(brd_view, True)
-print(win(brd, is_player_round=True))
+while running:
+    if is_player_round:
+        brd_pc = player_round(brd_pc)
+    else:
+        brd_player, brd_player_view = pc_round(brd_player, brd_player_view)
+    
+    running = not win(brd_player, brd_pc)
 
 end()
