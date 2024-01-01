@@ -76,4 +76,5 @@ brd, brd_view = pc_round(brd, brd_view)
 display_brd(brd, False)
 display_brd(brd_view, True)
 print(win(brd, is_player_round=True))
-color(Fore.RESET, Back.RESET)
+
+end()

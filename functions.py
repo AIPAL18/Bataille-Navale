@@ -44,7 +44,7 @@ f_color = Fore.LIGHTGREEN_EX
 
 def start() -> None:
     """
-    Initialise le jeu : lance l'écran d'accueil avec les crédits , affiche les recommandations de jeu et color l'écran.
+    Initialise le jeu : lance l'écran d'accueil avec les crédits, affiche les recommandations de jeu et colore l'écran.
     :return: None.
     """
     color(f_color, Back.BLACK)
@@ -63,6 +63,14 @@ def start() -> None:
     sleep(5)
     clear()
     color(f_color)
+
+
+def end() -> None:
+    """
+    Réinitialise les couleurs de l'invite de commande.
+    :return: None.
+    """
+    color(Fore.RESET, Back.RESET)
 
 
 def color(*args) -> None:
