@@ -16,10 +16,10 @@ def build_brd(size: int)\
     return brd1, brd2, brd3
 
 
-def boat_placement_player(brd: list[list[int]]) -> list[list[int]]:
+def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
     """
-    Fait placer les bateaux à l'utilisateur et retourne son plateau et le dictionnaire qui contient ses bateaux.
-    :param brd: list[list[int]].
+    Fait placer les bateaux à l'utilisateur et brd_player.
+    :param brd_player: list[list[int]].
     :return: list[list[int]].
     """
     letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
@@ -38,7 +38,7 @@ def boat_placement_player(brd: list[list[int]]) -> list[list[int]]:
           "Par exemple: Porte-avion (5 cases) -> A1 A5.\n"
           "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
 
-    display_brd(brd, False, False)
+    display_brd(brd_player, False, False)
 
     i = 0
     while i < len(boat_name):
@@ -61,17 +61,17 @@ def boat_placement_player(brd: list[list[int]]) -> list[list[int]]:
                     if size == boats_size[boat]:
                         allowed = True
                         for row in range(a, b):
-                            if not brd[row][letters_place[limits[0][0]]] == 0:
+                            if not brd_player[row][letters_place[limits[0][0]]] == 0:
                                 allowed = False
                         if allowed:
                             for row in range(a, b):
-                                brd[row][letters_place[limits[0][0]]] = 1
+                                brd_player[row][letters_place[limits[0][0]]] = 1
                             clear()
                             print("\nCommencez par placer vos bateaux:\n\n"
                                   "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées "
                                   "d'un espace.\nPar exemple: Porte-avion (5 cases) -> A1 A5.\n"
                                   "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
-                            display_brd(brd, False, False)
+                            display_brd(brd_player, False, False)
                             i += 1
                         else:
                             color(Fore.LIGHTRED_EX)
@@ -90,17 +90,17 @@ def boat_placement_player(brd: list[list[int]]) -> list[list[int]]:
                     if size == boats_size[boat]:
                         allowed = True
                         for cell in range(a, b):
-                            if not brd[int(limits[0][1:]) - 1][cell] == 0:
+                            if not brd_player[int(limits[0][1:]) - 1][cell] == 0:
                                 allowed = False
                         if allowed:
                             for cell in range(a, b):
-                                brd[int(limits[0][1:]) - 1][cell] = 1
+                                brd_player[int(limits[0][1:]) - 1][cell] = 1
                             clear()
                             print("\nCommencez par placer vos bateaux:\n\n"
                                   "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées "
                                   "d'un espace.\nPar exemple: Porte-avion (5 cases) -> A1 A5.\n"
                                   "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
-                            display_brd(brd, False, False)
+                            display_brd(brd_player, False, False)
                             i += 1
                         else:
                             color(Fore.LIGHTRED_EX)
@@ -127,13 +127,13 @@ def boat_placement_player(brd: list[list[int]]) -> list[list[int]]:
                   f"Entrée obtenue: \'{entry}\'")
             color(f_color)
     pause()
-    return brd
+    return brd_player
 
 
-def boat_placement_pc(brd: list[list[int]]) -> list[list[int]]:
+def boat_placement_pc(brd_pc: list[list[int]]) -> list[list[int]]:
     """
-    Place les bateaux de l'ordinateur et retourne son plateau et le dictionnaire qui contient ses bateaux.
-    :param brd: list[list[int]].
+    Place les bateaux de l'ordinateur et retourne brd_pc.
+    :param brd_pc: list[list[int]].
     :return: list[list[int]].
     """
     boats_list = [5, 4, 3, 3, 2]
@@ -147,29 +147,29 @@ def boat_placement_pc(brd: list[list[int]]) -> list[list[int]]:
             first_number = randint(0, 9 - size)
             allowed = True
             for number in range(first_number, first_number + size):
-                if not brd[letter][number] == 0:
+                if not brd_pc[letter][number] == 0:
                     allowed = False
             if allowed:
                 for number in range(first_number, first_number + size):
-                    brd[letter][number] = 1
+                    brd_pc[letter][number] = 1
                 i += 1
         else:                   # horizontal
             number = randint(0, 9)
             first_letter = randint(0, 9 - size)
             allowed = True
             for letter in range(first_letter, first_letter + size):
-                if not brd[letter][number] == 0:
+                if not brd_pc[letter][number] == 0:
                     allowed = False
             if allowed:
                 for letter in range(first_letter, first_letter + size):
-                    brd[letter][number] = 1
+                    brd_pc[letter][number] = 1
                 i += 1
-    return brd
+    return brd_pc
 
 
 def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
     """
-    Retourne True si la cible touche une case non détruite d’un bateau.
+    Retourne True si la cible touche une case d’un bateau.
     :param brd: list[list[int]].
     :param target: tuple[int, int].
     :return: bool.
@@ -182,7 +182,7 @@ def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
 
 def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend: bool = True) -> None:
     """
-    Affiche le plateau du joueur dans la console.
+    Affiche un plateau du joueur dans la console.
     :param brd: list[list[bool | None | int]].
     :param is_view: bool.
     :param legend: bool.
@@ -242,7 +242,7 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
 def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player_view: list[list[bool | None]])\
         -> tuple[list[list[int]], list[list[bool | None]]]:
     """
-    Fait jouer le joueur et retourne le plateau de l'ordinateur.
+    Fait jouer le joueur et retourne brd_pc, brd_player_view.
     :param brd_pc: list[list[int]].
     :param brd_player: list[list[int]].
     :param brd_player_view: list[list[bool | None]].
@@ -316,7 +316,7 @@ def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None
 
 def win(brd_player: list[list[int]], brd_pc: list[list[int]]) -> bool:
     """
-    Arrête le jeu si le plateau (du joueur ou de l’ordi) ne contient plus de bateau et annonce le vainqueur.
+    Retourne True s'il y a un vainqueur, ce qui aura pour effet d'arrêter le jeu et annonce le vainqueur.
     :param brd_player: list[list[int]].
     :param brd_pc: list[list[int]].
     :return: bool.
