@@ -38,22 +38,50 @@
 ########################################################################################################################
 from functions import *
 
+color(f_color, Back.BLACK)
+playing = True
+
 start()
+rules()
 
-brd_pc, brd_player, brd_player_view = build_brd((10, 10))
-brd_player, boat_dict_player = boat_placement_player(brd_player)
-brd_pc, boat_dict_pc = boat_placement_pc(brd_pc)
+while playing:
+    running = True
+    is_player_round = bool(randint(0, 1))
 
-running = True
-
-is_player_round = bool(randint(0, 1))
-
-while running:
     if is_player_round:
-        brd_pc = player_round(brd_pc)
+        print("\nVous jouerez en premier\n")
     else:
-        brd_player, brd_player_view = pc_round(brd_player, brd_player_view)
-    
-    running = not win(brd_player, brd_pc)
+        print("\nVotre adversaire jouera en premier\n")
+    pause()
+    clear()
+
+    brd_pc, brd_player, brd_player_view = build_brd(10)
+    brd_player = boat_placement_player(brd_player)
+
+    print("L'adversaire positionne ses bateaux...")
+
+    brd_pc = boat_placement_pc(brd_pc)
+
+    while running:
+        clear()
+        if is_player_round:
+            print("C'est votre tour, Général!")
+            brd_pc, brd_player_view = player_round(brd_pc, brd_player, brd_player_view)
+            is_player_round = False
+            pause()
+        else:
+            print("C'est au tour de l'adversaire.")
+            brd_player = pc_round(brd_player, brd_player_view)
+            is_player_round = True
+            pause()
+
+        running = not win(brd_player, brd_pc)
+
+    replay = input("Voulez-vous rejouer ? (Y/N)\n>>> ").upper()
+    if 'N' in replay:
+        playing = False
+    elif 'Y' not in replay:
+        print("Nous n'avons pas comprit, mais comme le jeu est incroyable, nous allons vous faire rejouer!\n"
+              "(Pour annuler presser CTRL+C)")
 
 end()

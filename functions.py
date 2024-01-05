@@ -1,208 +1,336 @@
-########################################################################################################################
-#                                                                                                                      #
-#                                                    BATAILLE NAVAL                                                    #
-#                                                                                                                      #
-#                                          Par Elie Ruggiero et Enzo Chauvet                                           #
-#                                                                                                                      #
-#                                             Décembre 2023 - Janvier 2024                                             #
-#                                                                                                                      #
-#                                                                                                                      #
-#                                                                                                                      #
-#                                                                                                                      #
-#   This is free and unencumbered software released into the public domain.                                            #
-#                                                                                                                      #
-#   Anyone is free to copy, modify, publish, use, compile, sell, or                                                    #
-#   distribute this software, either in source code form or as a compiled                                              #
-#   binary, for any purpose, commercial or non-commercial, and by any                                                  #
-#   means.                                                                                                             #
-#                                                                                                                      #
-#   In jurisdictions that recognize copyright laws, the author or authors                                              #
-#   of this software dedicate any and all copyright interest in the                                                    #
-#   software to the public domain. We make this dedication for the benefit                                             #
-#   of the public at large and to the detriment of our heirs and                                                       #
-#   successors. We intend this dedication to be an overt act of                                                        #
-#   relinquishment in perpetuity of all present and future rights to this                                              #
-#   software under copyright law.                                                                                      #
-#                                                                                                                      #
-#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,                                                    #
-#   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF                                                 #
-#   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.                                             #
-#   IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR                                                  #
-#   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,                                              #
-#   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR                                              #
-#   OTHER DEALINGS IN THE SOFTWARE.                                                                                    #
-#                                                                                                                      #
-#   For more information, please refer to <https://unlicense.org>                                                      #
-#                                                                                                                      #
-########################################################################################################################
-from colorama import Fore, Back
+from ui import *
 from random import randint
-from os import system
-from time import sleep
-f_color = Fore.LIGHTGREEN_EX
+import re
 
 
-def color(*args) -> None:
+def build_brd(size: int)\
+        -> tuple[list[list[int]], list[list[int]], list[list[bool | None]]]:
     """
-    Colore le cmd.
+    Construit les plateaux de jeu et retourne dans l'ordre: brd_pc, brd_player, brd_player_view.
+    :param size: int.
+    :return: tuple[list[list[int]], list[list[int]], list[list[bool | None]]].
     """
-    for i in args:
-        print(i, end="")
+    brd1 = [[0 for _ in range(size)] for _ in range(size)]
+    brd2 = [[0 for _ in range(size)] for _ in range(size)]
+    brd3 = [[None for _ in range(size)] for _ in range(size)]
+    return brd1, brd2, brd3
 
 
-def clear() -> None:
-    """
-    Efface la console.
-    """
-    system("cls")
-
-
-def start() -> None:
-    """
-    Initialise le jeu : lance l'écran d'accueil avec les crédits, affiche les recommandations de jeu et colore l'écran.
-    """
-    color(f_color, Back.BLACK)
-    print("""\n
-    \t##########################################################
-    \t#                    BATAILLE NAVAL                      #
-    \t#                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      #
-    \t#                                                        #
-    \t#           Par Elie Ruggiero et Enzo Chauvet            #
-    \t#                                                        #
-    \t#              Décembre 2023 - Janvier 2024              #
-    \t##########################################################\n\n""")
-    color(Fore.RED)
-    print("Nous vous conseillons, pour avoir une meilleur expérience, de démarrer ce programme "
-          "dans un invite de commande.\n\n")
-    sleep(5)
-    clear()
-    color(f_color)
-
-
-def build_brd(size: tuple[int, int])\
-        -> tuple[list[list[bool | None]], list[list[bool | None]], list[list[bool | None]]]:
-    """
-    Construit les plateaux de jeu et retourne brd_pc, brd_player, brd_player_view.
-    :param size: tuple[int, int].
-    :return: tuple[list[list[bool | None]], list[list[bool | None]], list[list[bool | None]]].
-    """
-    return [[]], [[]], [[]]
-
-
-def boat_placement_player(brd: list[list[bool | None]])\
-        -> tuple[list[list[bool | None]], dict[str: list[tuple[int, int]]]]:
+def boat_placement_player(brd: list[list[int]]) -> list[list[int]]:
     """
     Fait placer les bateaux à l'utilisateur et retourne son plateau et le dictionnaire qui contient ses bateaux.
-    :param brd: list[list[bool | None]].
-    :return: tuple[list[list[bool | None]], dict[str: list[tuple[int, int]]]].
+    :param brd: list[list[int]].
+    :return: list[list[int]].
     """
-    return [[]], {}
+    letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
+    boats_size = {
+        "porte-avion": 5,
+        "croiseur": 4,
+        "contre-torpilleur": 3,
+        "sous-marin": 3,
+        "torpilleur": 2
+    }
+    boat_name = list(boats_size.keys())
+
+    print("\nCommencez par placer vos bateaux:\n\n", end="")
+
+    print("Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées d'un espace.\n"
+          "Par exemple: Porte-avion (5 cases) -> A1 A5.\n"
+          "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
+
+    display_brd(brd, False, False)
+
+    i = 0
+    while i < len(boat_name):
+        boat = boat_name[i]
+        entry = input(f"{boat} ({boats_size[boat]} cases) -> ")
+        entry = entry.upper()
+
+        # intelligent recogniser:
+        if re.search(r"[A-Z][0-9]+ [A-Z][0-9]+", entry):
+            entry = re.search(r"[A-Z][0-9]+ [A-Z][0-9]+", entry).group()
+
+        if re.search(r"^[A-Z][0-9]+ [A-Z][0-9]+$", entry):  # if the format is correct
+            limits = tuple(entry.split(" "))  # limits = bornes
+            if (limits[0][0] in letters_place.keys() and limits[1][0] in letters_place.keys() and
+                0 < int(limits[0][1:]) < 11 and 0 < int(limits[1][1:]) < 11):
+                if limits[0][0] == limits[1][0]:  # vertical
+                    a = int(limits[0][1:]) - 1  # borne a
+                    b = int(limits[1][1:])      # borne b
+                    size = abs(a - b)
+                    if size == boats_size[boat]:
+                        allowed = True
+                        for row in range(a, b):
+                            if not brd[row][letters_place[limits[0][0]]] == 0:
+                                allowed = False
+                        if allowed:
+                            for row in range(a, b):
+                                brd[row][letters_place[limits[0][0]]] = 1
+                            clear()
+                            print("\nCommencez par placer vos bateaux:\n\n"
+                                  "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées "
+                                  "d'un espace.\nPar exemple: Porte-avion (5 cases) -> A1 A5.\n"
+                                  "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
+                            display_brd(brd, False, False)
+                            i += 1
+                        else:
+                            color(Fore.LIGHTRED_EX)
+                            print(f"Le {boat} est placé à cheval sur un autre bateau!")
+                            color(f_color)
+                    else:
+                        color(Fore.LIGHTRED_EX)
+                        print("La taille du bateau ne correspond pas !\n\t"
+                              f"taille attendu: {boats_size[boat]}\n\t"
+                              f"taille obtenue: {size}")
+                        color(f_color)
+                elif limits[0][1:] == limits[1][1:]:  # horizontal
+                    a = letters_place[limits[0][0]]      # borne a
+                    b = letters_place[limits[1][0]] + 1  # borne b
+                    size = abs(a - b)
+                    if size == boats_size[boat]:
+                        allowed = True
+                        for cell in range(a, b):
+                            if not brd[int(limits[0][1:]) - 1][cell] == 0:
+                                allowed = False
+                        if allowed:
+                            for cell in range(a, b):
+                                brd[int(limits[0][1:]) - 1][cell] = 1
+                            clear()
+                            print("\nCommencez par placer vos bateaux:\n\n"
+                                  "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées "
+                                  "d'un espace.\nPar exemple: Porte-avion (5 cases) -> A1 A5.\n"
+                                  "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
+                            display_brd(brd, False, False)
+                            i += 1
+                        else:
+                            color(Fore.LIGHTRED_EX)
+                            print(f"Le {boat} est placé à cheval sur un autre bateau!")
+                            color(f_color)
+                    else:
+                        color(Fore.LIGHTRED_EX)
+                        print("La taille du bateau ne correspond pas !\n\t"
+                              f"taille attendu: {boats_size[boat]}\n\t"
+                              f"taille obtenue: {size}")
+                        color(f_color)
+                else:
+                    color(Fore.LIGHTRED_EX)
+                    print("Le bateau doit être placé verticalement ou horizontalement exclusivement!")
+                    color(f_color)
+            else:
+                color(Fore.LIGHTRED_EX)
+                print("Le bateau doit être placé sur le plateau!")
+                color(f_color)
+        else:
+            color(Fore.LIGHTRED_EX)
+            print("Le format n'est pas bon: inscrivez la première coordonnée puis la dernière séparées d'un espace"
+                  "Par exemple: Porte-avion -> A1 A5.\n"
+                  f"Entrée obtenue: \'{entry}\'")
+            color(f_color)
+    pause()
+    return brd
 
 
-def boat_placement_pc(brd: list[list[bool | None]]) -> tuple[list[list[bool | None]], dict[str: list[tuple[int, int]]]]:
+def boat_placement_pc(brd: list[list[int]]) -> list[list[int]]:
     """
     Place les bateaux de l'ordinateur et retourne son plateau et le dictionnaire qui contient ses bateaux.
-    :param brd: list[list[bool | None]].
-    :return: tuple[list[list[bool | None]], dict[str: list[tuple[int, int]]]].
+    :param brd: list[list[int]].
+    :return: list[list[int]].
     """
-    return [[]], {}
+    boats_list = [5, 4, 3, 3, 2]
+    i = 0
+
+    while i < len(boats_list):
+        size = boats_list[i]
+        orientation = randint(0, 1)
+        if orientation == 0:    # vertical
+            letter = randint(0, 9)
+            first_number = randint(0, 9 - size)
+            allowed = True
+            for number in range(first_number, first_number + size):
+                if not brd[letter][number] == 0:
+                    allowed = False
+            if allowed:
+                for number in range(first_number, first_number + size):
+                    brd[letter][number] = 1
+                i += 1
+        else:                   # horizontal
+            number = randint(0, 9)
+            first_letter = randint(0, 9 - size)
+            allowed = True
+            for letter in range(first_letter, first_letter + size):
+                if not brd[letter][number] == 0:
+                    allowed = False
+            if allowed:
+                for letter in range(first_letter, first_letter + size):
+                    brd[letter][number] = 1
+                i += 1
+    return brd
 
 
-def is_hit(brd: list[list[bool | None]], target: tuple[int, int]) -> bool:
+def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
     """
     Retourne True si la cible touche une case non détruite d’un bateau.
-    :param brd: list[list[bool | None]].
+    :param brd: list[list[int]].
     :param target: tuple[int, int].
     :return: bool.
     """
-    if brd[target[0]][target[1]] or brd[target[0]][target[1]] is False:  # Touchée
+    if brd[target[0]][target[1]] == 1 or brd[target[0]][target[1]] == 3:  # Touchée
         return True
     else:
         return False
 
 
-def display_brd(brd_view: list[list[bool | None]], is_view: bool = True) -> None:
+def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend: bool = True) -> None:
     """
     Affiche le plateau du joueur dans la console.
-    :param brd_view: list[list[bool | None]].
+    :param brd: list[list[bool | None | int]].
     :param is_view: bool.
+    :param legend: bool.
     """
     true_color = Fore.RED
-    false_color = Fore.LIGHTBLUE_EX if is_view else Fore.GREEN
+    false_color = Fore.LIGHTBLUE_EX
+    intact = Fore.GREEN
     digits = {0: " 1", 1: " 2", 2: " 3", 3: " 4", 4: " 5", 5: " 6", 6: " 7", 7: " 8", 8: " 9", 9: "10"}
 
-    print("\t|    | A | B | C | D | E | F | G | H | I | J |")  # Entête des colonnes
+    print("\n\t|    | A | B | C | D | E | F | G | H | I | J |")  # Entête des colonnes
 
-    for row in range(len(brd_view)):
-        print(f"\t| {digits[row]} |", end="")  # Entête des lignes
+    for row in range(len(brd)):
+        print(f"\t| {digits[row]} |", end="")  # Entête des lignes •✕º⌀●◯■
 
-        for cell in brd_view[row]:
-            if cell:
-                color(true_color)
-                print(" o", end="")
-            elif cell is False:
-                color(false_color)
-                print(" x", end="")
-            elif cell is None:
-                print("  ", end="")
+        for cell in brd[row]:
+            if is_view:
+                if cell:
+                    color(true_color)
+                    print(" ●", end="")
+                elif cell is False:
+                    color(false_color)
+                    print(" ✕", end="")
+                elif cell is None:
+                    print("  ", end="")
+            else:
+                if cell == 0:
+                    print("  ", end="")
+                elif cell == 1:
+                    color(intact)
+                    print(" ◯", end="")
+                elif cell == 2:
+                    color(false_color)
+                    print(" ✕", end="")
+                elif cell == 3:
+                    color(true_color)
+                    print(" ●", end="")
             color(f_color)
             print(" |", end="")
-        if row == 3:
-            print(f"\t\t{true_color}o{f_color}: touché", end="")
 
-        if row == 5 and is_view:
-            print(f"\t\t{false_color}x{f_color}: dans l'eau.", end="")
-        elif row == 5:
-            print(f"\t\t{false_color}x{f_color}: intacte.", end="")
+        if legend and is_view:
+            if row == 3:
+                print(f"\t\t{true_color}●{f_color}: touché", end="")
+            if row == 5:
+                print(f"\t\t{false_color}✕{f_color}: dans l'eau.", end="")
+        elif legend:
+            if row == 3:
+                print(f"\t\t{true_color}●{f_color}: touché", end="")
+            elif row == 4:
+                print(f"\t\t{false_color}✕{f_color}: dans l'eau.", end="")
+            elif row == 5:
+                print(f"\t\t{intact}◯{f_color}: intacte.", end="")
+
         print("")  # retour à la ligne
     print("")  # retour à la ligne
 
 
-def player_round(brd: list[list[bool | None]]) -> list[list[bool | None]]:
+def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player_view: list[list[bool | None]])\
+        -> tuple[list[list[int]], list[list[bool | None]]]:
     """
-    Fait jouer le joueur et retourne brd_pc.
-    :param brd: list[list[bool | None]].
-    :return: list[list[bool | None]].
+    Fait jouer le joueur et retourne le plateau de l'ordinateur.
+    :param brd_pc: list[list[int]].
+    :param brd_player: list[list[int]].
+    :param brd_player_view: list[list[bool | None]].
+    :return: list[list[int]].
     """
-    return [[]]
+    letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
+    entry = ""
+
+    display_brd(brd_player_view)
+    display_brd(brd_player, is_view=False)
+
+    while not (re.search(r"^[A-Z][0-9]+$", entry) and entry[0] in letters_place.keys() and
+               0 < int(entry[1:]) < 11):
+        print("Où voulez-vous tirez ? "
+              "(Saisissez la coordonnée avec la lettre de la colonne suivit du chiffre de la ligne)")
+        entry = input(">>> ")
+        entry = entry.upper()
+
+        # intelligent recogniser:
+        if re.search(r"[A-Z][0-9]+", entry):
+            entry = re.search(r"[A-Z][0-9]+", entry).group()
+
+    target = (int(entry[1:])-1, letters_place[entry[0]])
+
+    if is_hit(brd_pc, target):
+        brd_pc[target[0]][target[1]] = 3
+        brd_player_view[target[0]][target[1]] = True
+    else:
+        brd_pc[target[0]][target[1]] = 2
+        brd_player_view[target[0]][target[1]] = False
+
+    clear()
+    print(f"Tire en {entry}")
+    display_brd(brd_player_view)
+    display_brd(brd_player, is_view=False)
+
+    if is_hit(brd_pc, target):
+        print("Touché !")
+    else:
+        print("Dans l'eau...")
+    return brd_pc, brd_player_view
 
 
-def pc_round(brd: list[list[bool | None]], brd_view: list[list[bool | None]])\
-        -> tuple[list[list[bool | None]], list[list[bool | None]]]:
+def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None]])\
+        -> list[list[int]]:
     """
-    Fait jouer l’ordinateur et retourne brd_player et brd_player_view.
-    :param brd: list[list[bool]].
-    :param brd_view: list[list[bool | None]].
-    :return: tuple[list[list[bool | None]], list[list[bool | None]]].
+    Fait jouer l’ordinateur et retourne brd_player.
+    :param brd_player: list[list[int]].
+    :param brd_player_view: list[list[bool | None]].
+    :return: list[list[int]].
     """
+    letters_place = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J'}
     target = (randint(0, 9), randint(0, 9))
 
-    if is_hit(brd, target):
-        brd[target[0]][target[1]] = True
-        brd_view[target[0]][target[1]] = True
+    if is_hit(brd_player, target):
+        brd_player[target[0]][target[1]] = 3
     else:
-        brd_view[target[0]][target[1]] = False
+        brd_player[target[0]][target[1]] = 2
 
-    return brd, brd_view
+    display_brd(brd_player_view)
+    display_brd(brd_player, is_view=False)
+
+    print(f"\nL'adversaire tire en {letters_place[target[1]]}{target[0]+1}")
+    if is_hit(brd_player, target):
+        print("Touché...")
+    else:
+        print("Dans l'eau!")
+
+    return brd_player
 
 
-def win(brd_player: list[list[bool | None]], brd_pc: list[list[bool | None]]) -> bool:
+def win(brd_player: list[list[int]], brd_pc: list[list[int]]) -> bool:
     """
     Arrête le jeu si le plateau (du joueur ou de l’ordi) ne contient plus de bateau et annonce le vainqueur.
-    :param brd_player: list[list[bool]].
-    :param brd_pc: list[list[bool]].
+    :param brd_player: list[list[int]].
+    :param brd_pc: list[list[int]].
     :return: bool.
     """
     pc_won = True
     for row in brd_player:
         for cell in row:
-            if cell is False:
+            if cell == 1:
                 pc_won = False
 
     player_won = True
     for row in brd_pc:
         for cell in row:
-            if cell is False:
+            if cell == 1:
                 player_won = False
 
     if pc_won:          # Shame on the team
@@ -211,10 +339,3 @@ def win(brd_player: list[list[bool | None]], brd_pc: list[list[bool | None]]) ->
         print("Bravo Général! Vous avez gagné !")
 
     return pc_won or player_won
-
-
-def end() -> None:
-    """
-    Réinitialise les couleurs de l'invite de commande.
-    """
-    color(Fore.RESET, Back.RESET)
