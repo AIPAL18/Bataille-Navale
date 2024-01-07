@@ -53,10 +53,12 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
         if re.search(r"^[A-Z][0-9]+ [A-Z][0-9]+$", entry):  # if the format is correct
             limits = tuple(entry.split(" "))  # limits = bornes
             if (limits[0][0] in letters_place.keys() and limits[1][0] in letters_place.keys() and
-                0 < int(limits[0][1:]) < 11 and 0 < int(limits[1][1:]) < 11):
+                    0 < int(limits[0][1:]) < 11 and 0 < int(limits[1][1:]) < 11):
                 if limits[0][0] == limits[1][0]:  # vertical
-                    a = int(limits[0][1:]) - 1  # borne a
-                    b = int(limits[1][1:])      # borne b
+                    a = int(limits[0][1:])  # borne a
+                    b = int(limits[1][1:])  # borne b
+                    a, b = (b, a) if a > b else (a, b)  # coordonnées interchangeables
+                    a -= 1  # réajustement à cause de la boucle for
                     size = abs(a - b)
                     if size == boats_size[boat]:
                         allowed = True
@@ -84,8 +86,10 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
                               f"taille obtenue: {size}")
                         color(f_color)
                 elif limits[0][1:] == limits[1][1:]:  # horizontal
-                    a = letters_place[limits[0][0]]      # borne a
-                    b = letters_place[limits[1][0]] + 1  # borne b
+                    a = letters_place[limits[0][0]]  # borne a
+                    b = letters_place[limits[1][0]]  # borne b
+                    a, b = (b, a) if a > b else (a, b)  # coordonnées interchangeables
+                    b += 1  # réajustement à cause de la boucle for
                     size = abs(a - b)
                     if size == boats_size[boat]:
                         allowed = True
