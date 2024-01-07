@@ -78,13 +78,13 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
                         else:
                             color(Fore.LIGHTRED_EX)
                             print(f"Le {boat} est placé à cheval sur un autre bateau!")
-                            color(f_color)
+                            color(default_color)
                     else:
                         color(Fore.LIGHTRED_EX)
                         print("La taille du bateau ne correspond pas !\n\t"
                               f"taille attendu: {boats_size[boat]}\n\t"
                               f"taille obtenue: {size}")
-                        color(f_color)
+                        color(default_color)
                 elif limits[0][1:] == limits[1][1:]:  # horizontal
                     a = letters_place[limits[0][0]]  # borne a
                     b = letters_place[limits[1][0]]  # borne b
@@ -109,27 +109,27 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
                         else:
                             color(Fore.LIGHTRED_EX)
                             print(f"Le {boat} est placé à cheval sur un autre bateau!")
-                            color(f_color)
+                            color(default_color)
                     else:
                         color(Fore.LIGHTRED_EX)
                         print("La taille du bateau ne correspond pas !\n\t"
                               f"taille attendu: {boats_size[boat]}\n\t"
                               f"taille obtenue: {size}")
-                        color(f_color)
+                        color(default_color)
                 else:
                     color(Fore.LIGHTRED_EX)
                     print("Le bateau doit être placé verticalement ou horizontalement exclusivement!")
-                    color(f_color)
+                    color(default_color)
             else:
                 color(Fore.LIGHTRED_EX)
                 print("Le bateau doit être placé sur le plateau!")
-                color(f_color)
+                color(default_color)
         else:
             color(Fore.LIGHTRED_EX)
             print("Le format n'est pas bon: inscrivez la première coordonnée puis la dernière séparées d'un espace"
                   "Par exemple: Porte-avion -> A1 A5.\n"
                   f"Entrée obtenue: \'{entry}\'")
-            color(f_color)
+            color(default_color)
     pause()
     return brd_player
 
@@ -191,9 +191,6 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
     :param is_view: bool.
     :param legend: bool.
     """
-    true_color = Fore.RED
-    false_color = Fore.LIGHTBLUE_EX
-    intact = Fore.GREEN
     digits = {0: " 1", 1: " 2", 2: " 3", 3: " 4", 4: " 5", 5: " 6", 6: " 7", 7: " 8", 8: " 9", 9: "10"}
 
     print("\n\t|    | A | B | C | D | E | F | G | H | I | J |")  # Entête des colonnes
@@ -204,10 +201,10 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
         for cell in brd[row]:
             if is_view:
                 if cell:
-                    color(true_color)
+                    color(hit_color)
                     print(" ●", end="")
                 elif cell is False:
-                    color(false_color)
+                    color(water_color)
                     print(" ✕", end="")
                 elif cell is None:
                     print("  ", end="")
@@ -218,26 +215,26 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
                     color(intact)
                     print(" ◯", end="")
                 elif cell == 2:
-                    color(false_color)
+                    color(water_color)
                     print(" ✕", end="")
                 elif cell == 3:
-                    color(true_color)
+                    color(hit_color)
                     print(" ●", end="")
-            color(f_color)
+            color(default_color)
             print(" |", end="")
 
         if legend and is_view:
             if row == 3:
-                print(f"\t\t{true_color}●{f_color}: touché", end="")
+                print(f"\t\t{hit_color}●{default_color}: touché", end="")
             if row == 5:
-                print(f"\t\t{false_color}✕{f_color}: dans l'eau.", end="")
+                print(f"\t\t{water_color}✕{default_color}: dans l'eau.", end="")
         elif legend:
             if row == 3:
-                print(f"\t\t{true_color}●{f_color}: touché", end="")
+                print(f"\t\t{hit_color}●{default_color}: touché", end="")
             elif row == 4:
-                print(f"\t\t{false_color}✕{f_color}: dans l'eau.", end="")
+                print(f"\t\t{water_color}✕{default_color}: dans l'eau.", end="")
             elif row == 5:
-                print(f"\t\t{intact}◯{f_color}: intacte.", end="")
+                print(f"\t\t{intact}◯{default_color}: intacte.", end="")
 
         print("")  # retour à la ligne
     print("")  # retour à la ligne
@@ -311,10 +308,13 @@ def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None
 
     print(f"\nL'adversaire tire en {letters_place[target[1]]}{target[0]+1}")
     if is_hit(brd_player, target):
+        color(hit_color)
         print("Touché...")
     else:
+        color(water_color)
         print("Dans l'eau!")
 
+    color(default_color)
     return brd_player
 
 

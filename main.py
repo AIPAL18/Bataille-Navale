@@ -38,7 +38,7 @@
 ########################################################################################################################
 from functions import *
 
-color(f_color, Back.BLACK)
+color(default_color, Back.BLACK)
 playing = True
 
 start()

@@ -1,7 +1,10 @@
 from os import system
 from time import sleep
 from colorama import Fore, Back
-f_color = Fore.LIGHTGREEN_EX
+default_color = Fore.LIGHTGREEN_EX
+hit_color = Fore.RED
+water_color = Fore.LIGHTBLUE_EX
+intact = Fore.GREEN
 
 
 def color(*args) -> None:
@@ -25,7 +28,7 @@ def pause() -> None:
     """
     color(Fore.LIGHTBLACK_EX)
     input('(pressez Entrer)')
-    color(f_color)
+    color(default_color)
 
 
 def start() -> None:
