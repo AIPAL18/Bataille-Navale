@@ -1,5 +1,4 @@
-import os
-from os import system, name
+from os import system, name as os_name
 from colorama import Fore, Back
 
 clear_cmd = "cls"
@@ -10,7 +9,7 @@ intact = Fore.GREEN
 pause_color = Fore.LIGHTBLACK_EX
 infos_color = Fore.YELLOW
 
-if os.name == 'posix' or os.name == 'Linux':
+if os_name == 'posix' or os_name == 'Linux':
     clear_cmd = "clear"
     default_color = Fore.GREEN + Back.BLACK
     water_color = Fore.BLUE
@@ -18,9 +17,9 @@ if os.name == 'posix' or os.name == 'Linux':
     infos_color = Fore.LIGHTYELLOW_EX
 
 
-def color(*args) -> None:
+def colour(*args) -> None:
     """
-    Colore l'invite de commande.
+    Colours the command prompt.
     """
     for i in args:
         print(i, end="")
@@ -28,39 +27,38 @@ def color(*args) -> None:
 
 def error(*args, sep=' ', end='\n') -> None:
     """
-    Affiche une erreur en console.
-    :param args: /
-    :param sep: str.
-    :param end: str.
+    Displays errors in the console.
+    :param sep: String inserted between values, default a space.
+    :param end: String appended after the last value, default a newline.
     """
-    color(hit_color)
+    colour(hit_color)
     for i, arg in enumerate(args, 0):
         print(arg, end="")
         if i < len(args):
             print(sep, end="")
     print(end, end="")
-    color(default_color)
+    colour(default_color)
 
 
 def clear() -> None:
     """
-    Efface la console.
+    Clear the console.
     """
     system(clear_cmd)
 
 
 def pause() -> None:
     """
-    Pause le jeu.
+    Pause the game.
     """
-    color(pause_color)
+    colour(pause_color)
     input('(pressez Entrer)')
-    color(default_color)
+    colour(default_color)
 
 
 def start() -> None:
     """
-    Initialise le jeu : lance l'écran d'accueil avec les crédits, affiche les recommandations de jeu et colore l'écran.
+    Initialise the game. launches the welcome screen with credits, displays game recommendations and colours the screen.
     """
     clear()
     print("""\n
@@ -72,7 +70,7 @@ def start() -> None:
     \t#                                                        #
     \t#              Décembre 2023 - Janvier 2024              #
     \t##########################################################\n\n""")
-    color(infos_color)
+    colour(infos_color)
     print("Nous vous conseillons, pour avoir une meilleur expérience, de démarrer ce programme "
           "dans un invite de commande.\n\n")
     pause()
@@ -80,7 +78,7 @@ def start() -> None:
 
 def rules() -> None:
     """
-    Affiche les règles du jeu.
+    Displays the rules of the game.
     """
     clear()
     print("\nDéroulement du jeu:\n"
@@ -93,8 +91,7 @@ def rules() -> None:
 
 def select_level() -> int:
     """
-    Retourne le niveau de difficulté choisit par l'utilisateur.
-    :return: int.
+    Returns the level of difficulty chosen by the user.
     """
     clear()
     level = 0
@@ -124,6 +121,6 @@ def select_level() -> int:
 
 def finish() -> None:
     """
-    Réinitialise les couleurs de l'invite de commande.
+    Resets the colours of the command prompt.
     """
-    color(Fore.RESET, Back.RESET)
+    colour(Fore.RESET, Back.RESET)

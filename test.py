@@ -98,15 +98,15 @@ def display(odds_):
             if cell == empty_value:
                 print(f"     ", end="")
             elif cell == first_tier:
-                color(Fore.LIGHTYELLOW_EX)
+                colour(Fore.LIGHTYELLOW_EX)
                 print(f"  ◯  ", end="")
             elif cell == second_tier:
-                color(Fore.LIGHTMAGENTA_EX)
+                colour(Fore.LIGHTMAGENTA_EX)
                 print(f"  ◯  ", end="")
             elif cell == full_tier:
-                color(Fore.LIGHTRED_EX)
+                colour(Fore.LIGHTRED_EX)
                 print(f"  ●  ", end="")
-            color(default_color)
+            colour(default_color)
             print(f"|", end="")
         print()
 
@@ -118,7 +118,7 @@ def flatten_extend(matrix):
     return flat_list
 
 
-color(default_color)
+colour(default_color)
 ones = give_ones(brd)
 odds = compute_odds3(ones)
 display(odds)
@@ -139,30 +139,30 @@ for row, coord in zip(odds, brd_coord):
     for cell, case in zip(row, coord):
         if case in dico:
             if cell == empty_value:
-                color(Fore.WHITE)
+                colour(Fore.WHITE)
                 print(f"  {dico[case]}{" " if dico[case] < 10 else ""} ", end="")
             elif cell == first_tier:
-                color(Fore.LIGHTYELLOW_EX)
+                colour(Fore.LIGHTYELLOW_EX)
                 print(f"  {dico[case]}{" " if dico[case] < 10 else ""} ", end="")
             elif cell == second_tier:
-                color(Fore.LIGHTMAGENTA_EX)
+                colour(Fore.LIGHTMAGENTA_EX)
                 print(f"  {dico[case]}{" " if dico[case] < 10 else ""} ", end="")
             elif cell == full_tier:
-                color(Fore.LIGHTRED_EX)
+                colour(Fore.LIGHTRED_EX)
                 print(f"  {dico[case]}{" " if dico[case] < 10 else ""} ", end="")
         else:
             if cell == empty_value:
-                color(Fore.WHITE)
+                colour(Fore.WHITE)
                 print(f"  0  ", end="")
             elif cell == first_tier:
-                color(Fore.LIGHTYELLOW_EX)
+                colour(Fore.LIGHTYELLOW_EX)
                 print(f"  0  ", end="")
             elif cell == second_tier:
-                color(Fore.LIGHTMAGENTA_EX)
+                colour(Fore.LIGHTMAGENTA_EX)
                 print(f"  0  ", end="")
             elif cell == full_tier:
-                color(Fore.LIGHTRED_EX)
+                colour(Fore.LIGHTRED_EX)
                 print(f"  0  ", end="")
-        color(default_color)
+        colour(default_color)
         print(f"|", end="")
     print()

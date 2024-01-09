@@ -38,34 +38,22 @@
 ########################################################################################################################
 from functions import *
 
-color(default_color)
+colour(default_color)
 playing = True
 
 start()
 rules()
 
 while playing:
+    # setting the variables
     running = True
-    is_player_round = bool(randint(0, 1))
-
+    is_player_round = first_player()  # True if the player start playing
     level = select_level()
-
-    if is_player_round:
-        print("\nVous jouerez en premier\n")
-    else:
-        print("\nVotre adversaire jouera en premier\n")
-    pause()
-    clear()
-
     brd_pc, brd_player, brd_player_view = build_brd(10)
     brd_player = boat_placement_player(brd_player)
-
-    print("L'adversaire positionne ses bateaux...")
-
     brd_pc = boat_placement_pc(brd_pc)
 
     while running:
-        clear()
         if is_player_round:
             brd_pc, brd_player_view = player_round(brd_pc, brd_player, brd_player_view)
             is_player_round = False
@@ -77,10 +65,10 @@ while playing:
 
         running = not win(brd_player, brd_pc)
 
-    replay = input("Voulez-vous rejouer ? (Y/N)\n>>> ").upper()
+    replay = input("Voulez-vous rejouer ? (Y/N): ").upper()
     if 'N' in replay:
         playing = False
-    elif 'Y' not in replay:
+    elif 'Y' not in replay:  # if neither N nor Y are contained in "replay".
         print("Nous n'avons pas comprit, mais comme le jeu est incroyable, nous allons vous faire rejouer!\n"
               "(Pour annuler presser les touches CTRL et C simultanément)")
 

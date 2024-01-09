@@ -3,12 +3,28 @@ from random import randint, choice
 import re
 
 
-def build_brd(size: int)\
-        -> tuple[list[list[int]], list[list[int]], list[list[bool | None]]]:
+def first_player() -> bool:
     """
-    Construit les plateaux de jeu et retourne dans l'ordre: brd_pc, brd_player, brd_player_view.
-    :param size: int.
-    :return: tuple[list[list[int]], list[list[int]], list[list[bool | None]]].
+    Randomly defines whether the player starts playing.
+    :return: is_player_round.
+    """
+    is_player_round = bool(randint(0, 1))
+    
+    if is_player_round:
+        print("\nVous jouerez en premier\n")
+    else:
+        print("\nVotre adversaire jouera en premier\n")
+    pause()
+    clear()
+    
+    return is_player_round
+
+
+def build_brd(size: int) -> tuple[list[list[int]], list[list[int]], list[list[bool | None]]]:
+    """
+    Build the game boards.
+    :param size: Size of the (square) game boards.
+    :return: brd_pc, brd_player, brd_player_view.
     """
     brd1 = [[0 for _ in range(size)] for _ in range(size)]
     brd2 = [[0 for _ in range(size)] for _ in range(size)]
@@ -18,9 +34,9 @@ def build_brd(size: int)\
 
 def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
     """
-    Fait placer les bateaux à l'utilisateur et brd_player.
-    :param brd_player: list[list[int]].
-    :return: list[list[int]].
+    Makes the user place his boats.
+    :param brd_player: Player's game board.
+    :return: brd_player.
     """
     letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
     boats_size = {
@@ -121,13 +137,15 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
 
 def boat_placement_pc(brd_pc: list[list[int]]) -> list[list[int]]:
     """
-    Place les bateaux de l'ordinateur et retourne brd_pc.
-    :param brd_pc: list[list[int]].
-    :return: list[list[int]].
+    Place the computer's boats.
+    :param brd_pc: computer's game board.
+    :return: brd_pc.
     """
     boats_list = [5, 4, 3, 3, 2]
     i = 0
 
+    print("L'adversaire positionne ses bateaux...")
+    
     while i < len(boats_list):
         size = boats_list[i]
         orientation = randint(0, 1)
@@ -158,9 +176,9 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> list[list[int]]:
 
 def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
     """
-    Retourne True si la cible touche une case d’un bateau.
-    :param brd: list[list[int]].
-    :param target: tuple[int, int].
+    Returns True if the target touches a square on a boat.
+    :param brd: Game board.
+    :param target: Couple of coordinates.
     :return: bool.
     """
     if brd[target[0]][target[1]] == 1 or brd[target[0]][target[1]] == 3:  # Touchée
@@ -171,10 +189,10 @@ def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
 
 def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend: bool = True) -> None:
     """
-    Affiche un plateau du joueur dans la console.
-    :param brd: list[list[bool | None | int]].
-    :param is_view: bool.
-    :param legend: bool.
+    Displays a game board in the console.
+    :param brd: Game board view or game board.
+    :param is_view: True if it is game board view.
+    :param legend: Displays the legend if the value is True.
     """
     digits = {0: " 1", 1: " 2", 2: " 3", 3: " 4", 4: " 5", 5: " 6", 6: " 7", 7: " 8", 8: " 9", 9: "10"}
 
@@ -186,10 +204,10 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
         for cell in brd[row]:
             if is_view:
                 if cell:
-                    color(hit_color)
+                    colour(hit_color)
                     print(" ●", end="")
                 elif cell is False:
-                    color(water_color)
+                    colour(water_color)
                     print(" ✕", end="")
                 elif cell is None:
                     print("  ", end="")
@@ -197,15 +215,15 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
                 if cell == 0:
                     print("  ", end="")
                 elif cell == 1:
-                    color(intact)
+                    colour(intact)
                     print(" ◯", end="")
                 elif cell == 2:
-                    color(water_color)
+                    colour(water_color)
                     print(" ✕", end="")
                 elif cell == 3:
-                    color(hit_color)
+                    colour(hit_color)
                     print(" ●", end="")
-            color(default_color)
+            colour(default_color)
             print(" |", end="")
 
         if legend and is_view:
@@ -228,11 +246,11 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
 def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player_view: list[list[bool | None]])\
         -> tuple[list[list[int]], list[list[bool | None]]]:
     """
-    Fait jouer le joueur et retourne brd_pc, brd_player_view.
-    :param brd_pc: list[list[int]].
-    :param brd_player: list[list[int]].
-    :param brd_player_view: list[list[bool | None]].
-    :return: list[list[int]].
+    Makes the user play.
+    :param brd_pc: Computer's game board.
+    :param brd_player: Player's game board.
+    :param brd_player_view: Player's game board view.
+    :return: brd_pc, brd_player_view.
     """
     letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
     entry = ""
@@ -267,19 +285,19 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
     display_brd(brd_player, is_view=False)
 
     if is_hit(brd_pc, target):
-        color(infos_color)
+        colour(infos_color)
         print("Touché !")
     else:
-        color(water_color)
+        colour(water_color)
         print("Dans l'eau...")
-    color(default_color)
+    colour(default_color)
     return brd_pc, brd_player_view
 
 
 def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None]], level: int)\
         -> list[list[int]]:
     """
-    Fait jouer l’ordinateur et retourne brd_player.
+    Makes the computer play.
     :param brd_player: list[list[int]].
     :param brd_player_view: list[list[bool | None]].
     :param level: int.
@@ -308,21 +326,21 @@ def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None
 
     print(f"\nL'adversaire tire en {letters_place[target[1]]}{target[0]+1}")
     if is_hit(brd_player, target):
-        color(hit_color)
+        colour(hit_color)
         print("Touché...")
     else:
-        color(water_color)
+        colour(water_color)
         print("Dans l'eau!")
 
-    color(default_color)
+    colour(default_color)
     return brd_player
 
 
 def win(brd_player: list[list[int]], brd_pc: list[list[int]]) -> bool:
     """
-    Retourne True s'il y a un vainqueur, ce qui aura pour effet d'arrêter le jeu et annonce le vainqueur.
-    :param brd_player: list[list[int]].
-    :param brd_pc: list[list[int]].
+    Returns True and announce the winner if there's a winner, which will stop the game.
+    :param brd_player: Player's game board.
+    :param brd_pc: Computer's game board.
     :return: bool.
     """
     pc_won = True
@@ -337,9 +355,9 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]]) -> bool:
             if cell == 1:
                 player_won = False
 
-    if pc_won:          # Shame on the team
+    if pc_won:  # Shame on the team
         print("MAYDAY, MAYDAY, MAYDAY! Tous nos navires sont en train de couler Général! Nous avons perdu")
-    elif player_won:    # Glory on the leader
+    elif player_won:  # Glory on the leader
         print("Bravo Général! Vous avez gagné !")
 
     return pc_won or player_won
