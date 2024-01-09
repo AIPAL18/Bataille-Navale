@@ -291,6 +291,8 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
         colour(water_color)
         print("Dans l'eau...")
     colour(default_color)
+    
+    pause()
     return brd_pc, brd_player_view
 
 
@@ -323,16 +325,17 @@ def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None
     print("C'est au tour de l'adversaire.")
     display_brd(brd_player_view)
     display_brd(brd_player, is_view=False)
-
     print(f"\nL'adversaire tire en {letters_place[target[1]]}{target[0]+1}")
+    
     if is_hit(brd_player, target):
         colour(hit_color)
         print("Touché...")
     else:
         colour(water_color)
         print("Dans l'eau!")
-
     colour(default_color)
+    
+    pause()
     return brd_player
 
 

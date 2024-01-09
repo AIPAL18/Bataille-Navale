@@ -38,33 +38,35 @@
 ########################################################################################################################
 from functions import *
 
-colour(default_color)
-playing = True
-
-start()
+# Initialise the game.
+playing = start()
+# Displays the rules of the game.
 rules()
 
+# Replay loop
 while playing:
-    # setting the variables
+    # Sets the variables
     running = True
     is_player_round = first_player()  # True if the player start playing
     level = select_level()
     brd_pc, brd_player, brd_player_view = build_brd(10)
     brd_player = boat_placement_player(brd_player)
     brd_pc = boat_placement_pc(brd_pc)
-
+    
+    # Game loop
     while running:
-        if is_player_round:
+        if is_player_round:  # player's round
             brd_pc, brd_player_view = player_round(brd_pc, brd_player, brd_player_view)
             is_player_round = False
-            pause()
-        else:
+        
+        else:  # computer's round
             brd_player = pc_round(brd_player, brd_player_view, level)
             is_player_round = True
-            pause()
-
+        
+        # Check to see if anyone has won and if so, stop the game.
         running = not win(brd_player, brd_pc)
-
+    
+    # Asks the user if he wants to play again.
     replay = input("Voulez-vous rejouer ? (Y/N): ").upper()
     if 'N' in replay:
         playing = False
@@ -72,4 +74,6 @@ while playing:
         print("Nous n'avons pas comprit, mais comme le jeu est incroyable, nous allons vous faire rejouer!\n"
               "(Pour annuler presser les touches CTRL et C simultanément)")
 
+
+# Resets the colours of the command prompt.
 finish()

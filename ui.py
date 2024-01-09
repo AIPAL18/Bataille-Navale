@@ -56,11 +56,13 @@ def pause() -> None:
     colour(default_color)
 
 
-def start() -> None:
+def start() -> True:
     """
-    Initialise the game. launches the welcome screen with credits, displays game recommendations and colours the screen.
+    Initialise the game. Launches the welcome screen with credits, displays game recommendations and colours the screen.
+    :return: True.
     """
     clear()
+    colour(default_color)
     print("""\n
     \t##########################################################
     \t#                    BATAILLE NAVAL                      #
@@ -74,6 +76,8 @@ def start() -> None:
     print("Nous vous conseillons, pour avoir une meilleur expérience, de démarrer ce programme "
           "dans un invite de commande.\n\n")
     pause()
+    
+    # return True
 
 
 def rules() -> None:
