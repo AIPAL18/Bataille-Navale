@@ -77,7 +77,7 @@ def init() -> True:
           "dans un invite de commande.\n\n")
     pause()
     
-    # return True
+    return True
 
 
 def rules() -> None:
