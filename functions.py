@@ -267,7 +267,7 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
     display_brd(brd_player, is_view=False)
 
     if is_hit(brd_pc, target):
-        color(Fore.YELLOW)
+        color(infos_color)
         print("Touché !")
     else:
         color(water_color)
