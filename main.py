@@ -82,6 +82,6 @@ while playing:
         playing = False
     elif 'Y' not in replay:
         print("Nous n'avons pas comprit, mais comme le jeu est incroyable, nous allons vous faire rejouer!\n"
-              "(Pour annuler presser CTRL+C)")
+              "(Pour annuler presser les touches CTRL et C simultanément)")
 
 end()
