@@ -56,7 +56,7 @@ def pause() -> None:
     colour(default_color)
 
 
-def start() -> True:
+def init() -> True:
     """
     Initialise the game. Launches the welcome screen with credits, displays game recommendations and colours the screen.
     :return: True.
@@ -123,7 +123,7 @@ def select_level() -> int:
     return level
 
 
-def finish() -> None:
+def clean() -> None:
     """
     Resets the colours of the command prompt.
     """

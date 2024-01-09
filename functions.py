@@ -70,18 +70,21 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
             if (limits[0][0] in letters_place.keys() and limits[1][0] in letters_place.keys() and
                     0 < int(limits[0][1:]) < 11 and 0 < int(limits[1][1:]) < 11):
                 if limits[0][0] == limits[1][0]:  # vertical
-                    a = int(limits[0][1:])  # borne a
-                    b = int(limits[1][1:])  # borne b
-                    a, b = (b, a) if a > b else (a, b)  # coordonnées interchangeables
-                    a -= 1  # réajustement à cause de la boucle for
-                    size = abs(a - b)
+                    a = int(limits[0][1:])  # start or end of the boat
+                    b = int(limits[1][1:])  # start or end of the boat
+                    
+                    # Allows coordinates to be interchangeable
+                    start, end = (b, a) if a > b else (a, b)  # start & end of the boat
+                    start -= 1  # readjustment due to the for loop
+                    size = abs(start - end)  # calculates the size of the boat
+                    
                     if size == boats_size[boat]:
                         allowed = True
-                        for row in range(a, b):
+                        for row in range(start, end):
                             if not brd_player[row][letters_place[limits[0][0]]] == 0:
                                 allowed = False
                         if allowed:
-                            for row in range(a, b):
+                            for row in range(start, end):
                                 brd_player[row][letters_place[limits[0][0]]] = 1
                             clear()
                             print("\nCommencez par placer vos bateaux:\n\n"
@@ -97,18 +100,21 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
                               f"taille attendu: {boats_size[boat]}\n\t"
                               f"taille obtenue: {size}")
                 elif limits[0][1:] == limits[1][1:]:  # horizontal
-                    a = letters_place[limits[0][0]]  # borne a
-                    b = letters_place[limits[1][0]]  # borne b
-                    a, b = (b, a) if a > b else (a, b)  # coordonnées interchangeables
-                    b += 1  # réajustement à cause de la boucle for
-                    size = abs(a - b)
+                    a = letters_place[limits[0][0]]  # start or end of the boat
+                    b = letters_place[limits[1][0]]  # start or end of the boat
+                    
+                    # Allows coordinates to be interchangeable
+                    start, end = (b, a) if a > b else (a, b)  # start & end of the boat
+                    end += 1  # readjustment due to the for loop
+                    size = abs(start - end)  # calculates the size of the boat
+                    
                     if size == boats_size[boat]:
                         allowed = True
-                        for cell in range(a, b):
+                        for cell in range(start, end):
                             if not brd_player[int(limits[0][1:]) - 1][cell] == 0:
                                 allowed = False
                         if allowed:
-                            for cell in range(a, b):
+                            for cell in range(start, end):
                                 brd_player[int(limits[0][1:]) - 1][cell] = 1
                             clear()
                             print("\nCommencez par placer vos bateaux:\n\n"
@@ -149,7 +155,8 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> list[list[int]]:
     while i < len(boats_list):
         size = boats_list[i]
         orientation = randint(0, 1)
-        if orientation == 0:    # vertical
+        
+        if orientation == 0:  # vertical
             letter = randint(0, 9)
             first_number = randint(0, 9 - size)
             allowed = True
@@ -160,7 +167,8 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> list[list[int]]:
                 for number in range(first_number, first_number + size):
                     brd_pc[letter][number] = 1
                 i += 1
-        else:                   # horizontal
+        
+        else:  # horizontal
             number = randint(0, 9)
             first_letter = randint(0, 9 - size)
             allowed = True
@@ -181,9 +189,9 @@ def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
     :param target: Couple of coordinates.
     :return: bool.
     """
-    if brd[target[0]][target[1]] == 1 or brd[target[0]][target[1]] == 3:  # Touchée
+    if brd[target[0]][target[1]] == 1 or brd[target[0]][target[1]] == 3:  # Hit
         return True
-    else:
+    else:  # not hit
         return False
 
 
@@ -196,10 +204,10 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
     """
     digits = {0: " 1", 1: " 2", 2: " 3", 3: " 4", 4: " 5", 5: " 6", 6: " 7", 7: " 8", 8: " 9", 9: "10"}
 
-    print("\n\t|    | A | B | C | D | E | F | G | H | I | J |")  # Entête des colonnes
+    print("\n\t|    | A | B | C | D | E | F | G | H | I | J |")  # Column headers
 
     for row in range(len(brd)):
-        print(f"\t| {digits[row]} |", end="")  # Entête des lignes •✕º⌀●◯■
+        print(f"\t| {digits[row]} |", end="")  # Line headers
 
         for cell in brd[row]:
             if is_view:
@@ -239,8 +247,8 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
             elif row == 5:
                 print(f"\t\t{intact}◯{default_color}: intacte.", end="")
 
-        print("")  # retour à la ligne
-    print("")  # retour à la ligne
+        print()  # return to line
+    print()  # return to line
 
 
 def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player_view: list[list[bool | None]])\
@@ -300,10 +308,10 @@ def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None
         -> list[list[int]]:
     """
     Makes the computer play.
-    :param brd_player: list[list[int]].
-    :param brd_player_view: list[list[bool | None]].
+    :param brd_player: Player's game board.
+    :param brd_player_view: Player's game board view.
     :param level: int.
-    :return: list[list[int]].
+    :return: brd_player.
     """
     letters_place = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J'}
     target = ()
@@ -344,7 +352,7 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]]) -> bool:
     Returns True and announce the winner if there's a winner, which will stop the game.
     :param brd_player: Player's game board.
     :param brd_pc: Computer's game board.
-    :return: bool.
+    :return: True if someone won.
     """
     pc_won = True
     for row in brd_player:

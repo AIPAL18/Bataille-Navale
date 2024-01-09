@@ -39,7 +39,7 @@
 from functions import *
 
 # Initialise the game.
-playing = start()
+playing = init()
 # Displays the rules of the game.
 rules()
 
@@ -76,4 +76,4 @@ while playing:
 
 
 # Resets the colours of the command prompt.
-finish()
+clean()
