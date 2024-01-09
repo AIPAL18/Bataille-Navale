@@ -32,9 +32,8 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
     }
     boat_name = list(boats_size.keys())
 
-    print("\nCommencez par placer vos bateaux:\n\n", end="")
-
-    print("Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées d'un espace.\n"
+    print("\nCommencez par placer vos bateaux:\n\n"
+          "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées d'un espace.\n"
           "Par exemple: Porte-avion (5 cases) -> A1 A5.\n"
           "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
 
@@ -76,15 +75,11 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
                             display_brd(brd_player, False, False)
                             i += 1
                         else:
-                            color(Fore.LIGHTRED_EX)
-                            print(f"Le {boat} est placé à cheval sur un autre bateau!")
-                            color(default_color)
+                            error(f"Le {boat} est placé à cheval sur un autre bateau!")
                     else:
-                        color(Fore.LIGHTRED_EX)
-                        print("La taille du bateau ne correspond pas !\n\t"
+                        error("La taille du bateau ne correspond pas !\n\t"
                               f"taille attendu: {boats_size[boat]}\n\t"
                               f"taille obtenue: {size}")
-                        color(default_color)
                 elif limits[0][1:] == limits[1][1:]:  # horizontal
                     a = letters_place[limits[0][0]]  # borne a
                     b = letters_place[limits[1][0]]  # borne b
@@ -107,29 +102,19 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
                             display_brd(brd_player, False, False)
                             i += 1
                         else:
-                            color(Fore.LIGHTRED_EX)
-                            print(f"Le {boat} est placé à cheval sur un autre bateau!")
-                            color(default_color)
+                            error(f"Le {boat} est placé à cheval sur un autre bateau!")
                     else:
-                        color(Fore.LIGHTRED_EX)
-                        print("La taille du bateau ne correspond pas !\n\t"
+                        error("La taille du bateau ne correspond pas !\n\t"
                               f"taille attendu: {boats_size[boat]}\n\t"
                               f"taille obtenue: {size}")
-                        color(default_color)
                 else:
-                    color(Fore.LIGHTRED_EX)
-                    print("Le bateau doit être placé verticalement ou horizontalement exclusivement!")
-                    color(default_color)
+                    error("Le bateau doit être placé verticalement ou horizontalement exclusivement!")
             else:
-                color(Fore.LIGHTRED_EX)
-                print("Le bateau doit être placé sur le plateau!")
-                color(default_color)
+                error("Le bateau doit être placé sur le plateau!")
         else:
-            color(Fore.LIGHTRED_EX)
-            print("Le format n'est pas bon: inscrivez la première coordonnée puis la dernière séparées d'un espace"
+            error("Le format n'est pas bon: inscrivez la première coordonnée puis la dernière séparées d'un espace"
                   "Par exemple: Porte-avion -> A1 A5.\n"
                   f"Entrée obtenue: \'{entry}\'")
-            color(default_color)
     pause()
     return brd_player
 

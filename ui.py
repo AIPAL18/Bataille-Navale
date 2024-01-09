@@ -1,10 +1,18 @@
 import os
 from os import system, name
 from colorama import Fore, Back
+
+clear_cmd = "cls"
 default_color = Fore.LIGHTGREEN_EX + Back.BLACK
 hit_color = Fore.RED
 water_color = Fore.LIGHTBLUE_EX
 intact = Fore.GREEN
+if os.name == 'posix' or os.name == 'Linux':
+    clear_cmd = "clear"
+    default_color = Fore.GREEN + Back.BLACK
+    hit_color = Fore.RED
+    water_color = Fore.BLUE
+    intact = Fore.LIGHTGREEN_EX
 
 
 def color(*args) -> None:
