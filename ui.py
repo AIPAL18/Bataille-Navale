@@ -1,7 +1,6 @@
 from os import system
-from time import sleep
 from colorama import Fore, Back
-default_color = Fore.LIGHTGREEN_EX
+default_color = Fore.LIGHTGREEN_EX + Back.BLACK
 hit_color = Fore.RED
 water_color = Fore.LIGHTBLUE_EX
 intact = Fore.GREEN
@@ -13,6 +12,22 @@ def color(*args) -> None:
     """
     for i in args:
         print(i, end="")
+
+
+def error(*args, sep=' ', end='\n') -> None:
+    """
+    Affiche une erreur en console.
+    :param args: /
+    :param sep: str.
+    :param end: str.
+    """
+    color(Fore.RED)
+    for i, arg in enumerate(args, 0):
+        print(arg, end="")
+        if i < len(args):
+            print(sep, end="")
+    print(end, end="")
+    color(default_color)
 
 
 def clear() -> None:
@@ -49,23 +64,53 @@ def start() -> None:
     print("Nous vous conseillons, pour avoir une meilleur expérience, de démarrer ce programme "
           "dans un invite de commande.\n\n")
     pause()
-    clear()
 
 
 def rules() -> None:
     """
     Affiche les règles du jeu.
     """
+    clear()
     print("\nDéroulement du jeu:\n"
           "Chacun votre tour, vous tirerez sur le plateau ennemi en essayant de toucher ses navires.\n"
           "Le premier à couler toute la flotte adverse gagne.\n"
           "Bonne chance !\n")
 
     pause()
+
+
+def select_level() -> int:
+    """
+    Retourne le niveau de difficulté choisit par l'utilisateur.
+    :return: int.
+    """
     clear()
+    level = 0
+    not_allowed = True
+
+    print("Choisissez le niveau de difficulté du jeu:\n"
+          "\t1 - Facile\n"
+          "\t2 - Moyen\n"
+          "\t3 - Difficile")
+
+    while not_allowed:
+        entry = input("\n(Entrez le numéro correspondant) -> ")
+        if not entry:  # empty
+            error("Vous devez entrer une valeur !")
+        else:
+            if not entry.isnumeric():  # is int
+                error("La valeur entrée doit être un nombre !")
+            else:
+                level = int(entry)
+                if level < 1 or level > 3:
+                    error("La valeur entrée doit correspondre à un niveau de difficulté !")
+                else:
+                    not_allowed = False
+
+    return level
 
 
-def end() -> None:
+def finish() -> None:
     """
     Réinitialise les couleurs de l'invite de commande.
     """

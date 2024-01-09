@@ -1,5 +1,5 @@
 from ui import *
-from random import randint
+from random import randint, choice
 import re
 
 
@@ -252,6 +252,7 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
     letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
     entry = ""
 
+    print("C'est votre tour, Général!")
     display_brd(brd_player_view)
     display_brd(brd_player, is_view=False)
 
@@ -281,28 +282,42 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
     display_brd(brd_player, is_view=False)
 
     if is_hit(brd_pc, target):
+        color(Fore.YELLOW)
         print("Touché !")
     else:
+        color(water_color)
         print("Dans l'eau...")
+    color(default_color)
     return brd_pc, brd_player_view
 
 
-def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None]])\
+def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None]], level: int)\
         -> list[list[int]]:
     """
     Fait jouer l’ordinateur et retourne brd_player.
     :param brd_player: list[list[int]].
     :param brd_player_view: list[list[bool | None]].
+    :param level: int.
     :return: list[list[int]].
     """
     letters_place = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J'}
-    target = (randint(0, 9), randint(0, 9))
+    target = ()
+
+    if level == 1:
+        target = (randint(0, 9), randint(0, 9))
+    elif level == 2:
+        partial_brd = []
+        choice(partial_brd)
+    elif level == 3:
+        partial_brd = []
+        choice(partial_brd)
 
     if is_hit(brd_player, target):
         brd_player[target[0]][target[1]] = 3
     else:
         brd_player[target[0]][target[1]] = 2
 
+    print("C'est au tour de l'adversaire.")
     display_brd(brd_player_view)
     display_brd(brd_player, is_view=False)
 

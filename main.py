@@ -38,15 +38,17 @@
 ########################################################################################################################
 from functions import *
 
-color(default_color, Back.BLACK)
+color(default_color)
 playing = True
 
-start()
-rules()
+# start()
+# rules()
 
 while playing:
     running = True
     is_player_round = bool(randint(0, 1))
+
+    level = select_level()
 
     if is_player_round:
         print("\nVous jouerez en premier\n")
@@ -65,13 +67,11 @@ while playing:
     while running:
         clear()
         if is_player_round:
-            print("C'est votre tour, Général!")
             brd_pc, brd_player_view = player_round(brd_pc, brd_player, brd_player_view)
             is_player_round = False
             pause()
         else:
-            print("C'est au tour de l'adversaire.")
-            brd_player = pc_round(brd_player, brd_player_view)
+            brd_player = pc_round(brd_player, brd_player_view, level)
             is_player_round = True
             pause()
 
@@ -84,4 +84,4 @@ while playing:
         print("Nous n'avons pas comprit, mais comme le jeu est incroyable, nous allons vous faire rejouer!\n"
               "(Pour annuler presser les touches CTRL et C simultanément)")
 
-end()
+finish()
