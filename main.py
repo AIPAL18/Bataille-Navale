@@ -41,8 +41,8 @@ from functions import *
 color(default_color)
 playing = True
 
-# start()
-# rules()
+start()
+rules()
 
 while playing:
     running = True

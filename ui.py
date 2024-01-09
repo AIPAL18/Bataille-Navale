@@ -1,4 +1,5 @@
-from os import system
+import os
+from os import system, name
 from colorama import Fore, Back
 default_color = Fore.LIGHTGREEN_EX + Back.BLACK
 hit_color = Fore.RED
@@ -34,7 +35,10 @@ def clear() -> None:
     """
     Efface la console.
     """
-    system("cls")
+    if os.name == 'posix' or os.name == 'Linux':
+        system("clear")
+    elif os.name == 'nt':
+        system("cls")
 
 
 def pause() -> None:
