@@ -34,7 +34,7 @@ def error(*args, sep=' ', end='\n') -> None:
     colour(hit_color)
     for i, arg in enumerate(args, 0):
         print(arg, end="")
-        if i < len(args):
+        if i < len(args) - 1:
             print(sep, end="")
     print(end, end="")
     colour(default_color)
@@ -44,7 +44,7 @@ def clear() -> None:
     """
     Clear the console.
     """
-    system(clear_cmd)
+    system("cls")
 
 
 def pause() -> None:
