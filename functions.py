@@ -51,7 +51,7 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
     print("\nCommencez par placer vos bateaux:\n\n"
           "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées d'un espace.\n"
           "Par exemple: Porte-avion (5 cases) -> A1 A5.\n"
-          "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
+          "Les bateaux peuvent être orientés verticalement ou horizontalement exclusivement")
 
     display_brd(brd_player, False, False)
 
@@ -94,7 +94,10 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
                             display_brd(brd_player, False, False)
                             i += 1
                         else:
-                            error(f"Le {boat} est placé à cheval sur un autre bateau!")
+                            error(f"Le {boat} est placé à cheval sur un autre bateau!", end=" ")
+                            if boat == "sous-marin":
+                                error("Même si celui celui-ci est un sous-marin il a besoin de son périscope!", end="")
+                            print("\n")
                     else:
                         error("La taille du bateau ne correspond pas !\n\t"
                               f"taille attendu: {boats_size[boat]}\n\t"
@@ -124,7 +127,10 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
                             display_brd(brd_player, False, False)
                             i += 1
                         else:
-                            error(f"Le {boat} est placé à cheval sur un autre bateau!")
+                            error(f"Le {boat} est placé à cheval sur un autre bateau!", end=" ")
+                            if boat == "sous-marin":
+                                error("Même si celui celui-ci est un sous-marin il a besoin de son périscope!", end="")
+                            print("\n")
                     else:
                         error("La taille du bateau ne correspond pas !\n\t"
                               f"taille attendu: {boats_size[boat]}\n\t"
