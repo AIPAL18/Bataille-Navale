@@ -62,7 +62,7 @@ def build_brd(size: int) -> tuple[list[list[int]], list[list[int]], list[list[bo
     return brd1, brd2, brd3
 
 
-def reset_boat_placement_player(brd_player: list[list[int]]):
+def reset_boat_placement_player_screen(brd_player: list[list[int]]):
     """
     Reset the command prompt for boat_placement_player().
     :param brd_player: Player's game board.
@@ -101,7 +101,17 @@ def calculate_boat_size(start_boat: tuple[int, int], end_boat: tuple[int, int]) 
     pass
 
 
-def is_free(brd, start_boat: tuple[int, int], end_boat: tuple[int, int]) -> bool:
+def is_space_free(brd, start_boat: tuple[int, int], end_boat: tuple[int, int], boats_player: dict)\
+        -> tuple[bool, str | None]:
+    """
+    Returns True if the location of the new boat is free.
+    Otherwise, it returns False, and the name of the boat(s) that is placed on at least one of the coordinates.
+    :param brd: pass.
+    :param start_boat: pass.
+    :param end_boat: pass.
+    :param boats_player: pass.
+    :return: is_space_free, if False boat's name already placed on these coordinates otherwise None.
+    """
     pass
 
 
@@ -109,14 +119,32 @@ def str_to_coordinates(coordinates_str) -> tuple[tuple[int, int], tuple[int, int
     """
     Transform a string into two set of coordinates.
     :param coordinates_str:
-    :return:
+    :return: small_coordinates, big_coordinates.
     """
     pass
 
 
+def place_boat(brd_player: list[list[int]], boats_player):
+    """
+    Place one boat on the game board.
+    :param brd_player:
+    :param boats_player:
+    :return:
+    """
+
+
+def remove_boat(brd_player: list[list[int]], boats_player):
+    """
+    
+    :param brd_player:
+    :param boats_player:
+    :return:
+    """
+
+
 def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]], dict]:
     """
-    Makes the user place his boats.
+    Makes the user place his/her boats.
     :param brd_player: Player's game board.
     :return: brd_player, boats_player.
     """
@@ -137,7 +165,7 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
         "torpilleur": []
     }
     
-    reset_boat_placement_player(brd_player)
+    reset_boat_placement_player_screen(brd_player)
 
     i = 0
     while i < len(boat_name):
@@ -170,7 +198,8 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
                         if allowed:
                             for row in range(start, end):
                                 brd_player[row][letters_place[limits[0][0]]] = 1
-                            reset_boat_placement_player(brd_player)
+                            
+                            reset_boat_placement_player_screen(brd_player)
                             i += 1
                         else:
                             error(f"Le {boat} est placé à cheval sur un autre bateau!",
@@ -196,7 +225,7 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
                         if allowed:
                             for cell in range(start, end):
                                 brd_player[int(limits[0][1:]) - 1][cell] = 1
-                            reset_boat_placement_player(brd_player)
+                            reset_boat_placement_player_screen(brd_player)
                             i += 1
                         else:
                             error(f"Le {boat} est placé à cheval sur un autre bateau!",
@@ -212,6 +241,9 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
             error("Le format n'est pas bon: inscrivez la première coordonnée puis la dernière séparées d'un espace"
                   "Par exemple: Porte-avion -> A1 A5.\n"
                   f"Entrée obtenue: \'{entry}\'")
+    
+    # Ask the user if he/she want to replace a boat (While).
+    
     pause()
     return brd_player, boats_player
 
@@ -269,7 +301,7 @@ def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
     Returns True if the target touches a square on a boat.
     :param brd: Game board.
     :param target: Couple of coordinates.
-    :return: bool.
+    :return: If the target touches a square on a boat.
     """
     return brd[target[0]][target[1]] == 1 or brd[target[0]][target[1]] == 3
 
@@ -281,7 +313,7 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
     :param is_view: True if it is game board view.
     :param legend: Displays the legend if the value is True.
     """
-    digits = {0: " 1", 1: " 2", 2: " 3", 3: " 4", 4: " 5", 5: " 6", 6: " 7", 7: " 8", 8: " 9", 9: "10"}
+    digits = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10"]
 
     print("\n\t|    | A | B | C | D | E | F | G | H | I | J |")  # Column headers
 
@@ -446,7 +478,7 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]]) -> bool:
                 player_won = False
 
     if pc_won:  # Shame on the team
-        print("MAYDAY, MAYDAY, MAYDAY! Tous nos navires sont en train de couler Général! Nous avons perdu")
+        print("MAYDAY, MAYDAY, MAYDAY! Tous nos navires sont en train de couler Général! Nous avons perdu...")
     elif player_won:  # Glory on the leader
         print("Bravo Général! Vous avez gagné !")
 
