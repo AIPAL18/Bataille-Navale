@@ -9,7 +9,7 @@ intact = Fore.GREEN
 pause_color = Fore.LIGHTBLACK_EX
 infos_color = Fore.YELLOW
 
-if os_name == 'posix' or os_name == 'Linux':
+if os_name == 'posix' or os_name == 'Linux':  # sys.platform ?
     clear_cmd = "clear"
     default_color = Fore.GREEN + Back.BLACK
     water_color = Fore.BLUE
@@ -33,9 +33,16 @@ def error(*args, sep=' ', end='\n') -> None:
     """
     colour(hit_color)
     for i, arg in enumerate(args, 0):
-        print(arg, end="")
-        if i < len(args) - 1:
-            print(sep, end="")
+        if type(arg) is str and arg[-1] == "\n":
+            i = 0
+            while arg[-1] == "\n":
+                arg = arg[:-1]
+                i += 1
+            
+        else:
+            print(arg, end="")
+            if i < len(args) - 1:
+                print(sep, end="")
     print(end, end="")
     colour(default_color)
 
@@ -44,7 +51,7 @@ def clear() -> None:
     """
     Clear the console.
     """
-    system("cls")
+    system("cls")  # asks the command prompt to execute the command
 
 
 def pause() -> None:
@@ -52,7 +59,7 @@ def pause() -> None:
     Pause the game.
     """
     colour(pause_color)
-    input('(pressez Entrer)')
+    input('(pressez Entrer)')  # wait until the user press Enter & pray that he doesn't press CTRL+Z + Enter (EOFError).
     colour(default_color)
 
 
@@ -91,36 +98,6 @@ def rules() -> None:
           "Bonne chance !\n")
 
     pause()
-
-
-def select_level() -> int:
-    """
-    Returns the level of difficulty chosen by the user.
-    """
-    clear()
-    level = 0
-    not_allowed = True
-
-    print("Choisissez le niveau de difficulté du jeu:\n"
-          "\t1 - Facile\n"
-          "\t2 - Moyen\n"
-          "\t3 - Difficile")
-
-    while not_allowed:
-        entry = input("\n(Entrez le numéro correspondant) -> ")
-        if not entry:  # empty
-            error("Vous devez entrer une valeur !")
-        else:
-            if not entry.isnumeric():  # is int
-                error("La valeur entrée doit être un nombre !")
-            else:
-                level = int(entry)
-                if level < 1 or level > 3:
-                    error("La valeur entrée doit correspondre à un niveau de difficulté !")
-                else:
-                    not_allowed = False
-
-    return level
 
 
 def clean() -> None:

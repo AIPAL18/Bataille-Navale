@@ -3,19 +3,49 @@ from random import randint, choice
 import re
 
 
+def select_level() -> int:
+    """
+    Returns the level of difficulty chosen by the user.
+    """
+    clear()
+    level = 0
+    not_allowed = True
+
+    print("Choisissez le niveau de difficulté du jeu:\n"
+          "\t1 - Facile\n"
+          "\t2 - Moyen\n"
+          "\t3 - Difficile")
+
+    while not_allowed:
+        entry = input("\n(Entrez le numéro correspondant) -> ")
+        if not entry:  # empty
+            error("Vous devez entrer une valeur !")
+        else:
+            if not entry.isnumeric():  # is int
+                error("La valeur entrée doit être un nombre !")
+            else:
+                level = int(entry)
+                if level < 1 or level > 3:
+                    error("La valeur entrée doit correspondre à un niveau de difficulté !")
+                else:
+                    not_allowed = False
+    pause()
+
+    return level
+
+
 def first_player() -> bool:
     """
     Randomly defines whether the player starts playing.
     :return: is_player_round.
     """
+    clear()
     is_player_round = bool(randint(0, 1))
     
     if is_player_round:
         print("\nVous jouerez en premier\n")
     else:
         print("\nVotre adversaire jouera en premier\n")
-    pause()
-    clear()
     
     return is_player_round
 
@@ -32,13 +62,15 @@ def build_brd(size: int) -> tuple[list[list[int]], list[list[int]], list[list[bo
     return brd1, brd2, brd3
 
 
-def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
+def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]], dict]:
     """
     Makes the user place his boats.
     :param brd_player: Player's game board.
-    :return: brd_player.
+    :return: brd_player, boats_player.
     """
+    clear()
     letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
+    boat_name = ["porte-avion", "croiseur", "contre-torpilleur", "sous-marin", "torpilleur"]
     boats_size = {
         "porte-avion": 5,
         "croiseur": 4,
@@ -46,7 +78,13 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
         "sous-marin": 3,
         "torpilleur": 2
     }
-    boat_name = list(boats_size.keys())
+    boats_player = {
+        "porte-avion": [],
+        "croiseur": [],
+        "contre-torpilleur": [],
+        "sous-marin": [],
+        "torpilleur": []
+    }
 
     print("\nCommencez par placer vos bateaux:\n\n"
           "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées d'un espace.\n"
@@ -94,10 +132,8 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
                             display_brd(brd_player, False, False)
                             i += 1
                         else:
-                            error(f"Le {boat} est placé à cheval sur un autre bateau!", end=" ")
-                            if boat == "sous-marin":
-                                error("Même si celui celui-ci est un sous-marin il a besoin de son périscope!", end="")
-                            print("\n")
+                            error(f"Le {boat} est placé à cheval sur un autre bateau!",
+                                  "Même si celui celui-ci est un sous-marin il a besoin de son périscope!" if boat == "sous-marin" else "")
                     else:
                         error("La taille du bateau ne correspond pas !\n\t"
                               f"taille attendu: {boats_size[boat]}\n\t"
@@ -127,14 +163,11 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
                             display_brd(brd_player, False, False)
                             i += 1
                         else:
-                            error(f"Le {boat} est placé à cheval sur un autre bateau!", end=" ")
-                            if boat == "sous-marin":
-                                error("Même si celui celui-ci est un sous-marin il a besoin de son périscope!", end="")
-                            print("\n")
+                            error(f"Le {boat} est placé à cheval sur un autre bateau!",
+                                  "Même si celui celui-ci est un sous-marin il a besoin de son périscope!" if boat == "sous-marin" else "")
                     else:
-                        error("La taille du bateau ne correspond pas !\n\t"
-                              f"taille attendu: {boats_size[boat]}\n\t"
-                              f"taille obtenue: {size}")
+                        error("La taille du bateau ne correspond pas !",
+                              f"Le bateau devrait faire {boats_size[boat]} cases il ne fait que {size} cases!", sep='')
                 else:
                     error("Le bateau doit être placé verticalement ou horizontalement exclusivement!")
             else:
@@ -144,14 +177,14 @@ def boat_placement_player(brd_player: list[list[int]]) -> list[list[int]]:
                   "Par exemple: Porte-avion -> A1 A5.\n"
                   f"Entrée obtenue: \'{entry}\'")
     pause()
-    return brd_player
+    return brd_player, boats_player
 
 
-def boat_placement_pc(brd_pc: list[list[int]]) -> list[list[int]]:
+def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict]:
     """
     Place the computer's boats.
     :param brd_pc: computer's game board.
-    :return: brd_pc.
+    :return: brd_pc, boats_pc.
     """
     boats_list = [5, 4, 3, 3, 2]
     i = 0
