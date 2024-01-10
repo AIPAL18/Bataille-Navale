@@ -29,7 +29,6 @@ def select_level() -> int:
                     error("La valeur entrée doit correspondre à un niveau de difficulté !")
                 else:
                     not_allowed = False
-    pause()
 
     return level
 
@@ -46,6 +45,7 @@ def first_player() -> bool:
         print("\nVous jouerez en premier\n")
     else:
         print("\nVotre adversaire jouera en premier\n")
+    pause()
     
     return is_player_round
 
@@ -62,13 +62,64 @@ def build_brd(size: int) -> tuple[list[list[int]], list[list[int]], list[list[bo
     return brd1, brd2, brd3
 
 
+def reset_boat_placement_player(brd_player: list[list[int]]):
+    """
+    Reset the command prompt for boat_placement_player().
+    :param brd_player: Player's game board.
+    """
+    colour(default_color)
+    clear()
+    print("\nCommencez par placer vos bateaux:\n\n"
+          "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées "
+          "d'un espace.\nPar exemple: Porte-avion (5 cases) -> A1 A5.\n"
+          "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
+    display_brd(brd_player, False, False)
+
+
+def boat_orientation_interpreter(limit_a: tuple[int, int], limit_b: tuple[int, int]) -> int:
+    """
+    Returns True if the boat is vertical.
+    :param limit_a: First set of coordinates.
+    :param limit_b: Second set of coordinates.
+    :return: 0 = vertical, 1 = horizontal, 2 = neither.
+    """
+    if limit_a[0] == limit_b[0]:  # letters are the same.
+        return 0
+    elif limit_a[1] == limit_b[1]:  # numbers are the same.
+        return 1
+    else:  # letters and numbers are different
+        return 2
+    
+    
+def calculate_boat_size(start_boat: tuple[int, int], end_boat: tuple[int, int]) -> int:
+    """
+    Returns the size of the boat.
+    :param start_boat: Start of the boat (set of coordinates).
+    :param end_boat: End of the boat (set of coordinates).
+    :return:
+    """
+    pass
+
+
+def is_free(brd, start_boat: tuple[int, int], end_boat: tuple[int, int]) -> bool:
+    pass
+
+
+def str_to_coordinates(coordinates_str) -> tuple[tuple[int, int], tuple[int, int]]:
+    """
+    Transform a string into two set of coordinates.
+    :param coordinates_str:
+    :return:
+    """
+    pass
+
+
 def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]], dict]:
     """
     Makes the user place his boats.
     :param brd_player: Player's game board.
     :return: brd_player, boats_player.
     """
-    clear()
     letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
     boat_name = ["porte-avion", "croiseur", "contre-torpilleur", "sous-marin", "torpilleur"]
     boats_size = {
@@ -85,13 +136,8 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
         "sous-marin": [],
         "torpilleur": []
     }
-
-    print("\nCommencez par placer vos bateaux:\n\n"
-          "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées d'un espace.\n"
-          "Par exemple: Porte-avion (5 cases) -> A1 A5.\n"
-          "Les bateaux peuvent être orientés verticalement ou horizontalement exclusivement")
-
-    display_brd(brd_player, False, False)
+    
+    reset_boat_placement_player(brd_player)
 
     i = 0
     while i < len(boat_name):
@@ -106,7 +152,7 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
         if re.search(r"^[A-Z][0-9]+ [A-Z][0-9]+$", entry):  # if the format is correct
             limits = tuple(entry.split(" "))  # limits = bornes
             if (limits[0][0] in letters_place.keys() and limits[1][0] in letters_place.keys() and
-                    0 < int(limits[0][1:]) < 11 and 0 < int(limits[1][1:]) < 11):
+                    0 < int(limits[0][1:]) < 11 and 0 < int(limits[1][1:]) < 11):  # True if the boat is on the board
                 if limits[0][0] == limits[1][0]:  # vertical
                     a = int(limits[0][1:])  # start or end of the boat
                     b = int(limits[1][1:])  # start or end of the boat
@@ -124,12 +170,7 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
                         if allowed:
                             for row in range(start, end):
                                 brd_player[row][letters_place[limits[0][0]]] = 1
-                            clear()
-                            print("\nCommencez par placer vos bateaux:\n\n"
-                                  "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées "
-                                  "d'un espace.\nPar exemple: Porte-avion (5 cases) -> A1 A5.\n"
-                                  "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
-                            display_brd(brd_player, False, False)
+                            reset_boat_placement_player(brd_player)
                             i += 1
                         else:
                             error(f"Le {boat} est placé à cheval sur un autre bateau!",
@@ -155,12 +196,7 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
                         if allowed:
                             for cell in range(start, end):
                                 brd_player[int(limits[0][1:]) - 1][cell] = 1
-                            clear()
-                            print("\nCommencez par placer vos bateaux:\n\n"
-                                  "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées "
-                                  "d'un espace.\nPar exemple: Porte-avion (5 cases) -> A1 A5.\n"
-                                  "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
-                            display_brd(brd_player, False, False)
+                            reset_boat_placement_player(brd_player)
                             i += 1
                         else:
                             error(f"Le {boat} est placé à cheval sur un autre bateau!",
@@ -187,6 +223,13 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict]:
     :return: brd_pc, boats_pc.
     """
     boats_list = [5, 4, 3, 3, 2]
+    boats_pc = {
+        "porte-avion": [],
+        "croiseur": [],
+        "contre-torpilleur": [],
+        "sous-marin": [],
+        "torpilleur": []
+    }
     i = 0
 
     print("L'adversaire positionne ses bateaux...")
@@ -218,7 +261,7 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict]:
                 for letter in range(first_letter, first_letter + size):
                     brd_pc[letter][number] = 1
                 i += 1
-    return brd_pc
+    return brd_pc, boats_pc
 
 
 def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
@@ -228,10 +271,7 @@ def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
     :param target: Couple of coordinates.
     :return: bool.
     """
-    if brd[target[0]][target[1]] == 1 or brd[target[0]][target[1]] == 3:  # Hit
-        return True
-    else:  # not hit
-        return False
+    return brd[target[0]][target[1]] == 1 or brd[target[0]][target[1]] == 3
 
 
 def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend: bool = True) -> None:
