@@ -56,7 +56,7 @@ def pause() -> None:
     colour(default_color)
 
 
-def init() -> True:
+def init() -> bool:
     """
     Initialise the game. Launches the welcome screen with credits, displays game recommendations and colours the screen.
     :return: True.
