@@ -70,8 +70,6 @@ def reset_boat_placement_player_screen(brd_player: list[list[int]]):
     colour(default_color)
     clear()
     print("\nCommencez par placer vos bateaux:\n\n"
-          "Pour chaque bateau, inscrivez la première coordonnée puis la dernière séparées "
-          "d'un espace.\nPar exemple: Porte-avion (5 cases) -> A1 A5.\n"
           "Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement")
     display_brd(brd_player, False, False)
 
@@ -97,34 +95,55 @@ def str_to_coordinates(coordinates_str) -> tuple[tuple[int, int], tuple[int, int
             letter_b = letters_place[limits[1][0]]  # letter of the second set of coordinates.
             
             # we use int() because we checked, with the regex above, that the input format is respected.
-            number_a = int(limits[0][1])  # number in the first set of coordinates.
-            number_b = int(limits[1][1])  # number in the second set of coordinates.
+            number_a = int(limits[0][1:])  # number in the first set of coordinates.
+            number_b = int(limits[1][1:])  # number in the second set of coordinates.
             
-            if limits[0][0] == limits[1][0]:  # letters are the same → vertical.
-                # Enables the start and end of the boat to be interchanged.
+            if letter_a == letter_b:  # letters are the same → vertical.
+                # Enables the start and end of the boat to be interchanged and readjustment due to the range() function.
+                """
+                We will iterate in between number_b and number_a with the range() function.
+                1 - reel number = index + 1
+                So index = number_b - 1
+                II - range(a, b-1) gives index + 1 - 1 = reel number
+                So index = number_a
+                
+                Whereas index for letters is already calculated in the dict above.
+                """
                 if number_a > number_b:
-                    start = (letter_b, number_b - 1)  # readjustment due to the for loop
+                    start = (letter_b, number_b - 1)
                     end = (letter_a, number_a)
                 else:
-                    start = (letter_a, number_a - 1)  # readjustment due to the for loop
+                    start = (letter_a, number_a - 1)
                     end = (letter_b, number_b)
                 
-                size = abs(start[1] - end[1])  # calculates the size of the boat
+                size = end[1] - start[1]  # calculates the size of the boat
                 
                 return start, end, 1, size
             
-            elif limits[0][1] == limits[1][1]:  # numbers are the same → horizontal.
+            elif number_a == number_b:  # numbers are the same → horizontal.
                 # Enables the start and end of the boat to be interchanged.
+                """
+                We will iterate in between letter_b and letter_a with the range() function.
+                I - value of letter = place of letter - 1 (in the dict above)
+                And place of letter = index + 1
+                So index = place of letter - 1 = value of letter
+                II - range(a, b-1) gives index + 1 - 1 = place of letter
+                And index = place of letter
+                But place of letter = value of letter + 1
+                So index = value of letter + 1
+                
+                Whereas index for number = index + 1
+                So index = number - 1
+                """
                 if letter_a > letter_b:
-                    start = (letter_b, number_b)
-                    end = (letter_a, number_a)
+                    start = (letter_b, number_b - 1)  # reel number = index+1 so index = number_b-1
+                    end = (letter_a + 1, number_a - 1)  # reel number = index+1 so index = number_a-1
                 else:
-                    start = (letter_a, number_a)
-                    end = (letter_b, number_b)
-                end += 1  # readjustment due to the for loop
+                    start = (letter_a, number_a - 1)
+                    end = (letter_b + 1, number_b - 1)
                 
-                size = abs(start[0] - end[0])  # calculates the size of the boat
-                
+                size = end[0] - start[0]  # calculates the size of the boat
+                print(start, end)
                 return start, end, 0, size
             
             else:  # letters and numbers are different.
@@ -192,6 +211,8 @@ def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict)\
     placed = False
     boat_size = boats_size_list[boat_name]
     
+    print(f"\nInscrivez la première coordonnée du {boat_name}, puis la dernière séparées d'un espace. "
+          "Par exemple: Porte-avion (5 cases) -> A1 A5.")
     entry = input(f"{boat_name} ({boat_size} cases) -> ")
     entry = entry.upper()
     boat_infos = str_to_coordinates(entry)
@@ -277,9 +298,9 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
 
     while not all(boats_status.values()):  # loops until all the boats are positioned
         print("Saisissez le numéro du bateau que vous voulez placer: \n"
-              "1 => porte avion \n"
+              "1 => porte-avion \n"
               "2 => croiseur \n"
-              "3 => contre torpilleur \n"
+              "3 => contre-torpilleur \n"
               "4 => sous-marin \n"
               "5 => torpilleur")
         boat_number_entry = input(">>> ")
