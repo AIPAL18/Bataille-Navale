@@ -76,70 +76,173 @@ def reset_boat_placement_player_screen(brd_player: list[list[int]]):
     display_brd(brd_player, False, False)
 
 
-def boat_orientation_interpreter(limit_a: tuple[int, int], limit_b: tuple[int, int]) -> int:
+def str_to_coordinates(coordinates_str) -> tuple[tuple[int, int], tuple[int, int], int, int] | bool:
     """
-    Returns True if the boat is vertical.
-    :param limit_a: First set of coordinates.
-    :param limit_b: Second set of coordinates.
-    :return: 0 = vertical, 1 = horizontal, 2 = neither.
+    Transform a string into two set of coordinates if possible, otherwise it returns False.
+    :param coordinates_str:
+    :return: (start, end, orientation, size) or False.
     """
-    if limit_a[0] == limit_b[0]:  # letters are the same.
-        return 0
-    elif limit_a[1] == limit_b[1]:  # numbers are the same.
-        return 1
-    else:  # letters and numbers are different
-        return 2
+    letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
+    # intelligent recogniser:
+    if re.search(r"[A-Z][0-9]+ [A-Z][0-9]+", coordinates_str):
+        coordinates_str = re.search(r"[A-Z][0-9]+ [A-Z][0-9]+", coordinates_str).group()
     
-    
-def calculate_boat_size(start_boat: tuple[int, int], end_boat: tuple[int, int]) -> int:
-    """
-    Returns the size of the boat.
-    :param start_boat: Start of the boat (set of coordinates).
-    :param end_boat: End of the boat (set of coordinates).
-    :return:
-    """
-    pass
+    if re.search(r"^[A-Z][0-9]+ [A-Z][0-9]+$", coordinates_str):  # if the input format is valid.
+        limits = tuple(coordinates_str.split(" "))
+        
+        if (limits[0][0] in letters_place.keys() and limits[1][0] in letters_place.keys() and
+                0 < int(limits[0][1:]) < 11 and 0 < int(limits[1][1:]) < 11):  # True if the boat is on the board.
+            # we use letters_place because we checked, with the regex above, that the input format is respected.
+            letter_a = letters_place[limits[0][0]]  # letter of the first set of coordinates.
+            letter_b = letters_place[limits[1][0]]  # letter of the second set of coordinates.
+            
+            # we use int() because we checked, with the regex above, that the input format is respected.
+            number_a = int(limits[0][1])  # number in the first set of coordinates.
+            number_b = int(limits[1][1])  # number in the second set of coordinates.
+            
+            if limits[0][0] == limits[1][0]:  # letters are the same → vertical.
+                # Enables the start and end of the boat to be interchanged.
+                if number_a > number_b:
+                    start = (letter_b, number_b - 1)  # readjustment due to the for loop
+                    end = (letter_a, number_a)
+                else:
+                    start = (letter_a, number_a - 1)  # readjustment due to the for loop
+                    end = (letter_b, number_b)
+                
+                size = abs(start[1] - end[1])  # calculates the size of the boat
+                
+                return start, end, 1, size
+            
+            elif limits[0][1] == limits[1][1]:  # numbers are the same → horizontal.
+                # Enables the start and end of the boat to be interchanged.
+                if letter_a > letter_b:
+                    start = (letter_b, number_b)
+                    end = (letter_a, number_a)
+                else:
+                    start = (letter_a, number_a)
+                    end = (letter_b, number_b)
+                end += 1  # readjustment due to the for loop
+                
+                size = abs(start[0] - end[0])  # calculates the size of the boat
+                
+                return start, end, 0, size
+            
+            else:  # letters and numbers are different.
+                error("Général, le bateau ne peut pas être placé en diagonale !")
+                return False
+        else:  # boat isn't on the game board.
+            error("Le bateau doit être placé sur la mer (de A1 à J10) !")
+            return False
+    else:  # The input format is not respected.
+        error("Le format n'est pas bon: inscrivez la première coordonnée, puis la dernière séparées d'un espace.\n"
+              "Par exemple: Porte-avion (5 cases) -> A1 A5.\n"
+              f"Entrée obtenue: \"{coordinates_str}\"")
+        return False
 
 
-def is_space_free(brd, start_boat: tuple[int, int], end_boat: tuple[int, int], boats_player: dict)\
-        -> tuple[bool, str | None]:
+def is_space_free(brd, start: tuple[int, int], end: tuple[int, int], orientation: int, boats_player: dict)\
+        -> tuple[bool, list[str]]:
     """
     Returns True if the location of the new boat is free.
     Otherwise, it returns False, and the name of the boat(s) that is placed on at least one of the coordinates.
-    :param brd: pass.
-    :param start_boat: pass.
-    :param end_boat: pass.
-    :param boats_player: pass.
-    :return: is_space_free, if False boat's name already placed on these coordinates otherwise None.
+    :param brd: Game board.
+    :param start: Small coordinates.
+    :param end: Big coordinates.
+    :param orientation: Orientation.
+    :param boats_player: Dictionary storing the player's boats.
+    :return: is_space_free, if False, it returns a list of boat's name already placed on these coordinates otherwise
+     it returns an empty list.
     """
-    pass
-
-
-def str_to_coordinates(coordinates_str) -> tuple[tuple[int, int], tuple[int, int]]:
-    """
-    Transform a string into two set of coordinates.
-    :param coordinates_str:
-    :return: small_coordinates, big_coordinates.
-    """
-    pass
-
-
-def place_boat(brd_player: list[list[int]], boats_player):
-    """
-    Place one boat on the game board.
-    :param brd_player:
-    :param boats_player:
-    :return:
-    """
-
-
-def remove_boat(brd_player: list[list[int]], boats_player):
-    """
+    allowed = True
+    boat_list = []
     
-    :param brd_player:
-    :param boats_player:
-    :return:
+    if orientation:  # 1 = True → Vertical
+        for row in range(start[1], end[1]):
+            if not brd[row][start[0]] == 0:
+                allowed = False
+    else:  # 0 = False → Horizontal
+        for cell in range(start[0], end[0]):
+            if not brd[start[1]][cell] == 0:
+                allowed = False
+    
+    if not allowed:
+        if orientation:
+            virtual_coord = [(row, start[0]) for row in range(start[1], end[1])]
+        else:
+            virtual_coord = [(start[1], cell) for cell in range(start[0], end[0])]
+        
+        for boat, coord in zip(boats_player, list(boats_player.values())):
+            for c in virtual_coord:
+                if c in coord:
+                    boat_list.append(boat)
+    
+    return allowed, boat_list
+    
+
+def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict)\
+        -> tuple[list[list[int]], dict, bool]:
     """
+    Place one boat on the game board. It returns True if the boat has been placed successfully.
+    :param brd_player: Player's game board.
+    :param boat_name: Name of the boat.
+    :param boats_player: Dictionary storing the player's boats.
+    :return: brd_player, boats_player, placed.
+    """
+    boats_size_list = {"porte-avion": 5, "croiseur": 4, "contre-torpilleur": 3, "sous-marin": 3, "torpilleur": 2}
+    placed = False
+    boat_size = boats_size_list[boat_name]
+    
+    entry = input(f"{boat_name} ({boat_size} cases) -> ")
+    entry = entry.upper()
+    boat_infos = str_to_coordinates(entry)
+    
+    if boat_infos:  # if the input format is valid
+        start, end, orientation, size = boat_infos
+        if size == boat_size:
+            space_free, boats_taking_space = is_space_free(brd_player, start, end, orientation, boats_player)
+            if space_free:
+                if orientation:  # 1 = True → Vertical
+                    coord = []
+                    for row in range(start[1], end[1]):
+                        brd_player[row][start[0]] = 1
+                        coord.append((row, start[0]))
+                    
+                    boats_player[boat_name] = coord  # update coordinates of the boat
+                    placed = True
+                else:  # 0 = False → Horizontal
+                    coord = []
+                    for cell in range(start[0], end[0]):
+                        brd_player[start[1]][cell] = 1
+                        coord.append((start[1], cell))
+                    
+                    boats_player[boat_name] = coord  # update coordinates of the boat
+                    placed = True
+            else:
+                boat_names_format = f"Le {boats_taking_space}"
+                for i, boat in enumerate(boats_taking_space[1:], 0):
+                    if i < len(boats_taking_space) - 2:
+                        boat_names_format += f", le {boat}"
+                    else:
+                        boat_names_format += f" et le {boat}"
+                error(f"{boat_names_format} navigue{"nt" if len(boats_taking_space) > 1 else ""} déjà sur ces eaux... "
+                      "L'espace est pris !")
+        else:
+            error("La taille du bateau ne correspond pas !\n\t"
+                  f"taille attendu: {boat_size}\n\t"
+                  f"taille obtenue: {size}")
+    
+    return brd_player, boats_player, placed
+
+
+def replace_boat(brd_player: list[list[int]], boats_player, boat_name):
+    """
+    Replace one boat on the game board.
+    :param brd_player: Player's game board.
+    :param boats_player: Dictionary storing the player's boats.
+    :param boat_name: Name of the boat.
+    :return: brd_player, boats_player.
+    """
+    pass
 
 
 def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]], dict]:
@@ -148,15 +251,6 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
     :param brd_player: Player's game board.
     :return: brd_player, boats_player.
     """
-    letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
-    boat_name = ["porte-avion", "croiseur", "contre-torpilleur", "sous-marin", "torpilleur"]
-    boats_size = {
-        "porte-avion": 5,
-        "croiseur": 4,
-        "contre-torpilleur": 3,
-        "sous-marin": 3,
-        "torpilleur": 2
-    }
     boats_player = {
         "porte-avion": [],
         "croiseur": [],
@@ -164,83 +258,48 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
         "sous-marin": [],
         "torpilleur": []
     }
+    boats_status = {  # status is False if the boat is not placed.
+        "porte-avion": False,
+        "croiseur": False,
+        "contre-torpilleur": False,
+        "sous-marin": False,
+        "torpilleur": False
+    }
+    number_to_boat = {
+        1: "porte-avion",
+        2: "croiseur",
+        3: "contre-torpilleur",
+        4: "sous-marin",
+        5: "torpilleur"
+    }
     
     reset_boat_placement_player_screen(brd_player)
 
-    i = 0
-    while i < len(boat_name):
-        boat = boat_name[i]
-        entry = input(f"{boat} ({boats_size[boat]} cases) -> ")
-        entry = entry.upper()
-
-        # intelligent recogniser:
-        if re.search(r"[A-Z][0-9]+ [A-Z][0-9]+", entry):
-            entry = re.search(r"[A-Z][0-9]+ [A-Z][0-9]+", entry).group()
-
-        if re.search(r"^[A-Z][0-9]+ [A-Z][0-9]+$", entry):  # if the format is correct
-            limits = tuple(entry.split(" "))  # limits = bornes
-            if (limits[0][0] in letters_place.keys() and limits[1][0] in letters_place.keys() and
-                    0 < int(limits[0][1:]) < 11 and 0 < int(limits[1][1:]) < 11):  # True if the boat is on the board
-                if limits[0][0] == limits[1][0]:  # vertical
-                    a = int(limits[0][1:])  # start or end of the boat
-                    b = int(limits[1][1:])  # start or end of the boat
-                    
-                    # Allows coordinates to be interchangeable
-                    start, end = (b, a) if a > b else (a, b)  # start & end of the boat
-                    start -= 1  # readjustment due to the for loop
-                    size = abs(start - end)  # calculates the size of the boat
-                    
-                    if size == boats_size[boat]:
-                        allowed = True
-                        for row in range(start, end):
-                            if not brd_player[row][letters_place[limits[0][0]]] == 0:
-                                allowed = False
-                        if allowed:
-                            for row in range(start, end):
-                                brd_player[row][letters_place[limits[0][0]]] = 1
-                            
-                            reset_boat_placement_player_screen(brd_player)
-                            i += 1
-                        else:
-                            error(f"Le {boat} est placé à cheval sur un autre bateau!",
-                                  "Même si celui celui-ci est un sous-marin il a besoin de son périscope!" if boat == "sous-marin" else "")
-                    else:
-                        error("La taille du bateau ne correspond pas !\n\t"
-                              f"taille attendu: {boats_size[boat]}\n\t"
-                              f"taille obtenue: {size}")
-                elif limits[0][1:] == limits[1][1:]:  # horizontal
-                    a = letters_place[limits[0][0]]  # start or end of the boat
-                    b = letters_place[limits[1][0]]  # start or end of the boat
-                    
-                    # Allows coordinates to be interchangeable
-                    start, end = (b, a) if a > b else (a, b)  # start & end of the boat
-                    end += 1  # readjustment due to the for loop
-                    size = abs(start - end)  # calculates the size of the boat
-                    
-                    if size == boats_size[boat]:
-                        allowed = True
-                        for cell in range(start, end):
-                            if not brd_player[int(limits[0][1:]) - 1][cell] == 0:
-                                allowed = False
-                        if allowed:
-                            for cell in range(start, end):
-                                brd_player[int(limits[0][1:]) - 1][cell] = 1
-                            reset_boat_placement_player_screen(brd_player)
-                            i += 1
-                        else:
-                            error(f"Le {boat} est placé à cheval sur un autre bateau!",
-                                  "Même si celui celui-ci est un sous-marin il a besoin de son périscope!" if boat == "sous-marin" else "")
-                    else:
-                        error("La taille du bateau ne correspond pas !",
-                              f"Le bateau devrait faire {boats_size[boat]} cases il ne fait que {size} cases!", sep='')
+    while not all(boats_status.values()):  # loops until all the boats are positioned
+        print("Saisissez le numéro du bateau que vous voulez placer: \n"
+              "1 => porte avion \n"
+              "2 => croiseur \n"
+              "3 => contre torpilleur \n"
+              "4 => sous-marin \n"
+              "5 => torpilleur")
+        boat_number_entry = input(">>> ")
+        if boat_number_entry.isnumeric():
+            boat_number = int(boat_number_entry)
+            if 1 <= boat_number <= 5:
+                boat = number_to_boat[boat_number]
+                if not boats_status[boat]:  # if the boat is not already placed
+                    brd_player, boats_player, placed = place_boat(brd_player, boat, boats_player)
+                    boats_status[boat] = placed  # updates the boat's status
+                    if placed:
+                        reset_boat_placement_player_screen(brd_player)
                 else:
-                    error("Le bateau doit être placé verticalement ou horizontalement exclusivement!")
+                    error(f"Le {boat} est déjà placé. Quand j'aurais du temps, je vous proposerais de le replacer...")
+                    # replace_entry = input("Souhaitez-vous replacer le bateau ? (Y/N)")
+                    
             else:
-                error("Le bateau doit être placé sur le plateau!")
+                error(f"Le numéro {boat_number} ne correspond pas à un bateau !")
         else:
-            error("Le format n'est pas bon: inscrivez la première coordonnée puis la dernière séparées d'un espace"
-                  "Par exemple: Porte-avion -> A1 A5.\n"
-                  f"Entrée obtenue: \'{entry}\'")
+            error("Vous devez saisir un numéro !")
     
     # Ask the user if he/she want to replace a boat (While).
     
