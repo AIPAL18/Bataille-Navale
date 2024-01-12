@@ -65,15 +65,17 @@ while playing:
         
         # Check to see if anyone has won and if so, stop the game.
         running = not win(brd_player, brd_pc)
-    
+
+    accuracy(brd_player, brd_pc)
+
     # Asks the user if he wants to play again.
-    replay = input("Voulez-vous rejouer ? (Y/N): ").upper()
+    replay = user_input("Voulez-vous rejouer ? (Y/N): ").upper()
     if 'N' in replay:
         playing = False
     elif 'Y' not in replay:  # if neither N nor Y are contained in "replay".
         print("Nous n'avons pas comprit, mais comme le jeu est incroyable, nous allons vous faire rejouer!\n"
               "(Pour annuler presser les touches CTRL et C simultanément)")
-
+        pause()
 
 # Resets the colours of the command prompt.
 clean()

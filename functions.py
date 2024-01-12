@@ -1,9 +1,10 @@
 from ui import *
 from random import randint, choice
 import re
+from time import sleep
 
 
-def select_level() -> int:
+def select_level() -> tuple[int, bool | None]:
     """
     Returns the level of difficulty chosen by the user.
     """
@@ -17,7 +18,7 @@ def select_level() -> int:
           "\t3 - Difficile")
 
     while not_allowed:
-        entry = input("\n(Entrez le numéro correspondant) -> ")
+        entry = user_input("\n(Entrez le numéro correspondant) -> ")
         if not entry:  # empty
             error("Vous devez entrer une valeur !")
         else:
@@ -42,9 +43,9 @@ def first_player() -> bool:
     is_player_round = bool(randint(0, 1))
     
     if is_player_round:
-        print("\nVous jouerez en premier\n")
+        print("Vous jouerez en premier\n")
     else:
-        print("\nVotre adversaire jouera en premier\n")
+        print("Votre adversaire jouera en premier\n")
     pause()
     
     return is_player_round
@@ -109,6 +110,7 @@ def str_to_coordinates(coordinates_str) -> tuple[tuple[int, int], tuple[int, int
                 
                 Whereas index for letters is already calculated in the dict above.
                 """
+                print(letter_a)
                 if number_a > number_b:
                     start = (letter_b, number_b - 1)
                     end = (letter_a, number_a)
@@ -213,7 +215,7 @@ def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict)\
     
     print(f"\nInscrivez la première coordonnée du {boat_name}, puis la dernière séparées d'un espace. "
           "Par exemple: Porte-avion (5 cases) -> A1 A5.")
-    entry = input(f"{boat_name} ({boat_size} cases) -> ")
+    entry = user_input(f"{boat_name} ({boat_size} cases) -> ")
     entry = entry.upper()
     boat_infos = str_to_coordinates(entry)
     
@@ -255,7 +257,7 @@ def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict)\
     return brd_player, boats_player, placed
 
 
-def replace_boat(brd_player: list[list[int]], boats_player, boat_name):
+def delete_boat(brd_player: list[list[int]], boats_player, boat_name):
     """
     Replace one boat on the game board.
     :param brd_player: Player's game board.
@@ -272,6 +274,7 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
     :param brd_player: Player's game board.
     :return: brd_player, boats_player.
     """
+    boats_size_list = {"porte-avion": 5, "croiseur": 4, "contre-torpilleur": 3, "sous-marin": 3, "torpilleur": 2}
     boats_player = {
         "porte-avion": [],
         "croiseur": [],
@@ -297,13 +300,15 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
     reset_boat_placement_player_screen(brd_player)
 
     while not all(boats_status.values()):  # loops until all the boats are positioned
-        print("Saisissez le numéro du bateau que vous voulez placer: \n"
-              "1 => porte-avion \n"
-              "2 => croiseur \n"
-              "3 => contre-torpilleur \n"
-              "4 => sous-marin \n"
-              "5 => torpilleur")
-        boat_number_entry = input(">>> ")
+        print("Saisissez le numéro du bateau que vous voulez placer:")
+        for i, name in enumerate(boats_status, 1):
+            if boats_status[name]:
+                colour(red_color)
+                print(f"{i} -> {name} ({boats_size_list[name]} cases)")
+                colour(default_color)
+            else:
+                print(f"{i} -> {name} ({boats_size_list[name]} cases)")
+        boat_number_entry = user_input(">>> ")
         if boat_number_entry.isnumeric():
             boat_number = int(boat_number_entry)
             if 1 <= boat_number <= 5:
@@ -313,16 +318,25 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
                     boats_status[boat] = placed  # updates the boat's status
                     if placed:
                         reset_boat_placement_player_screen(brd_player)
+                        pass
                 else:
                     error(f"Le {boat} est déjà placé. Quand j'aurais du temps, je vous proposerais de le replacer...")
-                    # replace_entry = input("Souhaitez-vous replacer le bateau ? (Y/N)")
+                    # replace_entry = user_input("Souhaitez-vous replacer le bateau ? (Y/N)")
                     
             else:
                 error(f"Le numéro {boat_number} ne correspond pas à un bateau !")
         else:
             error("Vous devez saisir un numéro !")
     
-    # Ask the user if he/she want to replace a boat (While).
+    # Ask the user if he/she want to replace a boat (While)
+    """keep_modifying = True
+    while keep_modifying:
+        replace_entry = user_input()
+        # si vide
+        # si Y/N
+        # delete
+        # place
+    """
     
     pause()
     return brd_player, boats_player
@@ -334,6 +348,7 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict]:
     :param brd_pc: computer's game board.
     :return: brd_pc, boats_pc.
     """
+    clear()
     boats_list = [5, 4, 3, 3, 2]
     boats_pc = {
         "porte-avion": [],
@@ -373,6 +388,10 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict]:
                 for letter in range(first_letter, first_letter + size):
                     brd_pc[letter][number] = 1
                 i += 1
+
+    sleep(3)  # simulation of the pc placing its boats
+    clear()
+
     return brd_pc, boats_pc
 
 
@@ -403,7 +422,7 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
         for cell in brd[row]:
             if is_view:
                 if cell:
-                    colour(hit_color)
+                    colour(red_color)
                     print(" ●", end="")
                 elif cell is False:
                     colour(water_color)
@@ -420,19 +439,19 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
                     colour(water_color)
                     print(" ✕", end="")
                 elif cell == 3:
-                    colour(hit_color)
+                    colour(red_color)
                     print(" ●", end="")
             colour(default_color)
             print(" |", end="")
 
         if legend and is_view:
             if row == 3:
-                print(f"\t\t{hit_color}●{default_color}: touché", end="")
+                print(f"\t\t{red_color}●{default_color}: touché", end="")
             if row == 5:
                 print(f"\t\t{water_color}✕{default_color}: dans l'eau.", end="")
         elif legend:
             if row == 3:
-                print(f"\t\t{hit_color}●{default_color}: touché", end="")
+                print(f"\t\t{red_color}●{default_color}: touché", end="")
             elif row == 4:
                 print(f"\t\t{water_color}✕{default_color}: dans l'eau.", end="")
             elif row == 5:
@@ -451,6 +470,7 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
     :param brd_player_view: Player's game board view.
     :return: brd_pc, brd_player_view.
     """
+    clear()
     letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
     entry = ""
 
@@ -462,7 +482,7 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
                0 < int(entry[1:]) < 11):
         print("Où voulez-vous tirez ? "
               "(Saisissez la coordonnée avec la lettre de la colonne suivit du chiffre de la ligne)")
-        entry = input(">>> ")
+        entry = user_input(">>> ")
         entry = entry.upper()
 
         # intelligent recogniser:
@@ -504,6 +524,7 @@ def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None
     :param level: int.
     :return: brd_player.
     """
+    clear()
     letters_place = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J'}
     target = ()
 
@@ -527,7 +548,7 @@ def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None
     print(f"\nL'adversaire tire en {letters_place[target[1]]}{target[0]+1}")
     
     if is_hit(brd_player, target):
-        colour(hit_color)
+        colour(red_color)
         print("Touché...")
     else:
         colour(water_color)
@@ -563,3 +584,14 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]]) -> bool:
         print("Bravo Général! Vous avez gagné !")
 
     return pc_won or player_won
+
+
+def accuracy(brd_player, brd_pc) -> None:
+    """
+    Calculates the accuracy of the player and the computer. Tells the user which one was more precise.
+    Args:
+        brd_player:
+        brd_pc:
+    """
+    pass
+

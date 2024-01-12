@@ -3,7 +3,7 @@ from colorama import Fore, Back
 
 clear_cmd = "cls"
 default_color = Fore.LIGHTGREEN_EX + Back.BLACK
-hit_color = Fore.RED
+red_color = Fore.RED
 water_color = Fore.LIGHTBLUE_EX
 intact = Fore.GREEN
 pause_color = Fore.LIGHTBLACK_EX
@@ -31,7 +31,7 @@ def error(*args, sep=' ', end='\n') -> None:
     :param sep: String inserted between values, default a space.
     :param end: String appended after the last value, default a newline.
     """
-    colour(hit_color)
+    colour(red_color)
     for i, arg in enumerate(args, 0):
         if type(arg) is str and arg[-1] == "\n":
             i = 0
@@ -59,7 +59,7 @@ def pause() -> None:
     Pause the game.
     """
     colour(pause_color)
-    input('(pressez Entrer)')  # wait until the user press Enter & pray that he doesn't press CTRL+Z + Enter (EOFError).
+    user_input('(pressez Entrer)')  # wait until the user press Enter & pray that he doesn't press CTRL+Z + Enter (EOFError).
     colour(default_color)
 
 
@@ -105,3 +105,29 @@ def clean() -> None:
     Resets the colours of the command prompt.
     """
     colour(Fore.RESET, Back.RESET)
+
+
+def user_input(*args) -> str:
+    """
+    Catch CTRL+C and CTRL+Z+Enter, which end the program,
+    Args:
+        *args:
+
+    Returns:
+
+    """
+    for arg in args:
+        print(arg, end="")
+    try:
+        entry = input()
+    except KeyboardInterrupt:
+        colour(Fore.RESET, Back.RESET)
+        quit()
+    except EOFError:
+        colour(Fore.RESET, Back.RESET)
+        quit()
+
+    return entry
+
+
+
