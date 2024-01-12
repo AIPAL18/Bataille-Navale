@@ -4,12 +4,13 @@ import re
 from time import sleep
 
 
-def select_level() -> tuple[int, bool | None]:
+def select_level() -> tuple[int, bool]:
     """
     Returns the level of difficulty chosen by the user.
     """
     clear()
     level = 0
+    is_cheat_code_activated = False
     not_allowed = True
 
     print("Choisissez le niveau de difficulté du jeu:\n"
@@ -22,7 +23,14 @@ def select_level() -> tuple[int, bool | None]:
         if not entry:  # empty
             error("Vous devez entrer une valeur !")
         else:
-            if not entry.isnumeric():  # is int
+            if entry == "lEs c@rroTteS s0nt cùites":  # cheat code
+                is_cheat_code_activated = True
+                clear()
+                print("Choisissez le niveau de difficulté du jeu:\n"
+                      "\t1 - Facile\n"
+                      "\t2 - Moyen\n"
+                      "\t3 - Difficile")
+            elif not entry.isnumeric():  # is int
                 error("La valeur entrée doit être un nombre !")
             else:
                 level = int(entry)
@@ -31,7 +39,7 @@ def select_level() -> tuple[int, bool | None]:
                 else:
                     not_allowed = False
 
-    return level
+    return level, is_cheat_code_activated
 
 
 def first_player() -> bool:
