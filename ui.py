@@ -48,12 +48,12 @@ def clear() -> None:
     system("cls")  # asks the command prompt to execute the command
 
 
-def pause() -> None:
+def wait_for_user() -> None:
     """
     Pause the game.
     """
     colour(pause_color)
-    user_input('(pressez Entrer)')  # wait until the user press Enter & pray that he doesn't press CTRL+Z + Enter (EOFError).
+    user_input('(pressez Entrer)')  # waits until the user press Enter & prays that he doesn't raise an error 🤞.
     colour(default_color)
 
 
@@ -79,7 +79,7 @@ def init() -> bool:
           "dans un invite de commande.\n")
     print("Pour arrêter le jeu, pressez CTRL+C.\n\n")
     
-    pause()
+    wait_for_user()
     
     return True
 
@@ -96,7 +96,7 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
     print("\n\t|    | A | B | C | D | E | F | G | H | I | J |")  # Column headers
 
     for row in range(len(brd)):
-        print(f"\t| {digits[row]} |", end="")  # Line headers ≈≋
+        print(f"\t| {digits[row]} |", end="")  # Line headers
 
         for cell in brd[row]:
             if is_view:
@@ -105,7 +105,7 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
                     print(" ●", end="")
                 elif cell is False:
                     colour(water_color)
-                    print(" ~", end="")
+                    print(" ⌗", end="")
                 elif cell is None:
                     print("  ", end="")
             else:
@@ -116,7 +116,7 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
                     print(" ◯", end="")
                 elif cell == 2:
                     colour(water_color)
-                    print(" ~", end="")
+                    print(" ⌗", end="")
                 elif cell == 3:
                     colour(red_color)
                     print(" ●", end="")
@@ -127,12 +127,12 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
             if row == 3:
                 print(f"\t\t{red_color}●{default_color}: touché", end="")
             if row == 5:
-                print(f"\t\t{water_color}~{default_color}: dans l'eau.", end="")
+                print(f"\t\t{water_color}⌗{default_color}: dans l'eau.", end="")
         elif legend:
             if row == 3:
                 print(f"\t\t{red_color}●{default_color}: touché", end="")
             elif row == 4:
-                print(f"\t\t{water_color}~{default_color}: dans l'eau.", end="")
+                print(f"\t\t{water_color}⌗{default_color}: dans l'eau.", end="")
             elif row == 5:
                 print(f"\t\t{intact}◯{default_color}: intacte.", end="")
 
@@ -179,16 +179,41 @@ def user_input(*args) -> str:
     Returns:
 
     """
+    error_raised = answered = will_quit = False
+    entry = ""
+    
     for arg in args:
         print(arg, end="")
+    
     try:
         entry = input()
     except KeyboardInterrupt:
-        colour(Fore.RESET, Back.RESET)
-        quit()
+        error_raised = True
     except EOFError:
-        colour(Fore.RESET, Back.RESET)
-        quit()
+        error_raised = True
+    
+    if error_raised:  # it may be an error
+        while not answered:
+            colour(yellow_color)
+            # for security reasons (mainly development errors), KeyboardInterrupt and EOFError are not processed.
+            validation = input("\nVoulez-vous vraiment quitté le jeu ? (Y/n): ")
+            colour(Fore.RESET, Back.RESET)  # resets the colours of the command prompt.
+            validation = validation.upper()
+            
+            # N first because if the user wrote y and n by accident, we don't want to stop the game.
+            if 'N' in validation:
+                print("Bonne reprise !")
+                colour(default_color)
+                answered = True
+            elif 'Y' in validation:
+                will_quit = True
+                answered = True
+            else:
+                print("Nous n'avons pas comprit...")
+        
+        if will_quit:
+            print("Au revoir !")
+            quit()  # quits the program properly
 
     return entry
 
