@@ -1,45 +1,69 @@
 from ui import *
 from random import randint, choice
 import re
-from time import sleep
 
 
-def select_level() -> tuple[int, bool]:
+def select_mode() -> int:
+    """
+    Returns the level of difficulty chosen by the user.
+    """
+    clear()
+    mode = 0
+    is_cheat_code_activated = False
+    allowed = False
+
+    print("\nChoisissez le mode de jeu:",
+          "\t1 - Le Nord Mâle",  # normal
+          "\t2 - Le Comte Rellam-Honttre",  # contre-la-montre, 10 min pour gagner.
+          "\t3 - L'habile lité",  # habilité/doigt de fée, précision, tu dois toucher 50 % du temps.
+          "\t4 - Il reste un rein", sep="\n")  # restreint → nombre de coups limité
+    
+    while not allowed:
+        entry = user_input("\n(Entrez le numéro correspondant) -> ")
+        if entry:
+            if entry.isnumeric():
+                level = int(entry)
+                if 1 <= level <= 4:
+                    allowed = True
+                else:
+                    error("La valeur entrée doit correspondre à un niveau de difficulté !")
+            else:  # is not int
+                error("La valeur entrée doit être un nombre !")
+        else:  # empty
+            error("Vous devez entrer une valeur !")
+    
+    return mode
+
+
+def select_level() -> int:
     """
     Returns the level of difficulty chosen by the user.
     """
     clear()
     level = 0
-    is_cheat_code_activated = False
-    not_allowed = True
-
-    print("Choisissez le niveau de difficulté du jeu:\n"
-          "\t1 - Facile\n"
-          "\t2 - Moyen\n"
-          "\t3 - Difficile")
-
-    while not_allowed:
+    allowed = False
+    
+    print("\nChoisissez le niveau de difficulté du jeu:",
+          "\t1 - Facile",
+          "\t2 - Moyen",
+          "\t3 - Difficile",
+          "\t4 - Impossible", sep="\n")
+    
+    while not allowed:
         entry = user_input("\n(Entrez le numéro correspondant) -> ")
-        if not entry:  # empty
-            error("Vous devez entrer une valeur !")
-        else:
-            if entry == "lEs c@rroTteS s0nt cùites":  # cheat code
-                is_cheat_code_activated = True
-                clear()
-                print("Choisissez le niveau de difficulté du jeu:\n"
-                      "\t1 - Facile\n"
-                      "\t2 - Moyen\n"
-                      "\t3 - Difficile")
-            elif not entry.isnumeric():  # is int
-                error("La valeur entrée doit être un nombre !")
-            else:
+        if entry:
+            if entry.isnumeric():
                 level = int(entry)
-                if level < 1 or level > 3:
-                    error("La valeur entrée doit correspondre à un niveau de difficulté !")
+                if 1 <= level <= 4:
+                    allowed = True
                 else:
-                    not_allowed = False
+                    error("La valeur entrée doit correspondre à un mode de jeu !")
+            else:  # is not int
+                error("La valeur entrée doit être un nombre !")
+        else:  # empty
+            error("Vous devez entrer une valeur !")
 
-    return level, is_cheat_code_activated
+    return level
 
 
 def first_player() -> bool:
@@ -51,9 +75,9 @@ def first_player() -> bool:
     is_player_round = bool(randint(0, 1))
     
     if is_player_round:
-        print("Vous jouerez en premier\n")
+        print("\nVous jouerez en premier\n")
     else:
-        print("Votre adversaire jouera en premier\n")
+        print("\nVotre adversaire jouera en premier\n")
     pause()
     
     return is_player_round
@@ -221,46 +245,53 @@ def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict)\
     placed = False
     boat_size = boats_size_list[boat_name]
     
-    print(f"\nInscrivez la première coordonnée du {boat_name}, puis la dernière séparées d'un espace. "
-          "Par exemple: Porte-avion (5 cases) -> A1 A5.")
+    reset_boat_placement_player_screen(brd_player)
+    print(f"Inscrivez la première et la dernière coordonnée du {boat_name}. "
+          f"Par exemple: {boat_name} ({boat_size} cases) -> A1 A{boat_size}.")  # Adapt the example to the boat selected
     entry = user_input(f"{boat_name} ({boat_size} cases) -> ")
     entry = entry.upper()
-    boat_infos = str_to_coordinates(entry)
     
-    if boat_infos:  # if the input format is valid
-        start, end, orientation, size = boat_infos
-        if size == boat_size:
-            space_free, boats_taking_space = is_space_free(brd_player, start, end, orientation, boats_player)
-            if space_free:
-                if orientation:  # 1 = True → Vertical
-                    coord = []
-                    for row in range(start[1], end[1]):
-                        brd_player[row][start[0]] = 1
-                        coord.append((row, start[0]))
-                    
-                    boats_player[boat_name] = coord  # update coordinates of the boat
-                    placed = True
-                else:  # 0 = False → Horizontal
-                    coord = []
-                    for cell in range(start[0], end[0]):
-                        brd_player[start[1]][cell] = 1
-                        coord.append((start[1], cell))
-                    
-                    boats_player[boat_name] = coord  # update coordinates of the boat
-                    placed = True
+    if entry:
+        boat_infos = str_to_coordinates(entry)
+        if boat_infos:  # if the input format is valid
+            start, end, orientation, size = boat_infos
+            if size == boat_size:
+                space_free, boats_taking_space = is_space_free(brd_player, start, end, orientation, boats_player)
+                if space_free:
+                    if orientation:  # 1 = True → Vertical
+                        coord = []
+                        for row in range(start[1], end[1]):
+                            brd_player[row][start[0]] = 1
+                            coord.append((row, start[0]))
+                        
+                        boats_player[boat_name] = coord  # update coordinates of the boat
+                        placed = True
+                    else:  # 0 = False → Horizontal
+                        coord = []
+                        for cell in range(start[0], end[0]):
+                            brd_player[start[1]][cell] = 1
+                            coord.append((start[1], cell))
+                        
+                        boats_player[boat_name] = coord  # update coordinates of the boat
+                        placed = True
+                else:
+                    reset_boat_placement_player_screen(brd_player)
+                    boat_names_format = f"Le {boats_taking_space[0]}"
+                    for i, boat in enumerate(boats_taking_space[1:], 0):
+                        if i < len(boats_taking_space) - 2:
+                            boat_names_format += f", le {boat}"
+                        else:
+                            boat_names_format += f" et le {boat}"
+                    error(f"{boat_names_format} navigue{"nt" if len(boats_taking_space) > 1 else ""} déjà sur ces "
+                          "eaux... L'espace est pris !")
             else:
-                boat_names_format = f"Le {boats_taking_space}"
-                for i, boat in enumerate(boats_taking_space[1:], 0):
-                    if i < len(boats_taking_space) - 2:
-                        boat_names_format += f", le {boat}"
-                    else:
-                        boat_names_format += f" et le {boat}"
-                error(f"{boat_names_format} navigue{"nt" if len(boats_taking_space) > 1 else ""} déjà sur ces eaux... "
-                      "L'espace est pris !")
-        else:
-            error("La taille du bateau ne correspond pas !\n\t"
-                  f"taille attendu: {boat_size}\n\t"
-                  f"taille obtenue: {size}")
+                reset_boat_placement_player_screen(brd_player)
+                error("La taille du bateau ne correspond pas !\n\t"
+                      f"taille attendu: {boat_size}\n\t"
+                      f"taille obtenue: {size}")
+    else:
+        reset_boat_placement_player_screen(brd_player)
+        error("Vous devez entrez une valeur !")
     
     return brd_player, boats_player, placed
 
@@ -311,12 +342,12 @@ def boat_placement_player(brd_player: list[list[int]]) -> tuple[list[list[int]],
         print("Saisissez le numéro du bateau que vous voulez placer:")
         for i, name in enumerate(boats_status, 1):
             if boats_status[name]:
-                colour(red_color)
-                print(f"{i} -> {name} ({boats_size_list[name]} cases)")
+                colour(Fore.GREEN)
+                print(f"\t● {i} -> {name} ({boats_size_list[name]} cases)")
                 colour(default_color)
             else:
-                print(f"{i} -> {name} ({boats_size_list[name]} cases)")
-        boat_number_entry = user_input(">>> ")
+                print(f"\t◯ {i} -> {name} ({boats_size_list[name]} cases)")
+        boat_number_entry = user_input("-> ")
         if boat_number_entry.isnumeric():
             boat_number = int(boat_number_entry)
             if 1 <= boat_number <= 5:
@@ -367,7 +398,7 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict]:
     }
     i = 0
 
-    print("L'adversaire positionne ses bateaux...")
+    print("\nL'adversaire positionne ses bateaux...")
     
     while i < len(boats_list):
         size = boats_list[i]
@@ -413,62 +444,6 @@ def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
     return brd[target[0]][target[1]] == 1 or brd[target[0]][target[1]] == 3
 
 
-def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend: bool = True) -> None:
-    """
-    Displays a game board in the console.
-    :param brd: Game board view or game board.
-    :param is_view: True if it is game board view.
-    :param legend: Displays the legend if the value is True.
-    """
-    digits = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10"]
-
-    print("\n\t|    | A | B | C | D | E | F | G | H | I | J |")  # Column headers
-
-    for row in range(len(brd)):
-        print(f"\t| {digits[row]} |", end="")  # Line headers
-
-        for cell in brd[row]:
-            if is_view:
-                if cell:
-                    colour(red_color)
-                    print(" ●", end="")
-                elif cell is False:
-                    colour(water_color)
-                    print(" ✕", end="")
-                elif cell is None:
-                    print("  ", end="")
-            else:
-                if cell == 0:
-                    print("  ", end="")
-                elif cell == 1:
-                    colour(intact)
-                    print(" ◯", end="")
-                elif cell == 2:
-                    colour(water_color)
-                    print(" ✕", end="")
-                elif cell == 3:
-                    colour(red_color)
-                    print(" ●", end="")
-            colour(default_color)
-            print(" |", end="")
-
-        if legend and is_view:
-            if row == 3:
-                print(f"\t\t{red_color}●{default_color}: touché", end="")
-            if row == 5:
-                print(f"\t\t{water_color}✕{default_color}: dans l'eau.", end="")
-        elif legend:
-            if row == 3:
-                print(f"\t\t{red_color}●{default_color}: touché", end="")
-            elif row == 4:
-                print(f"\t\t{water_color}✕{default_color}: dans l'eau.", end="")
-            elif row == 5:
-                print(f"\t\t{intact}◯{default_color}: intacte.", end="")
-
-        print()  # return to line
-    print()  # return to line
-
-
 def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player_view: list[list[bool | None]])\
         -> tuple[list[list[int]], list[list[bool | None]]]:
     """
@@ -482,7 +457,7 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
     letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
     entry = ""
 
-    print("C'est votre tour, Général!")
+    print("\nC'est votre tour, Général!")
     display_brd(brd_player_view)
     display_brd(brd_player, is_view=False)
 
@@ -512,7 +487,7 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
     display_brd(brd_player, is_view=False)
 
     if is_hit(brd_pc, target):
-        colour(infos_color)
+        colour(yellow_color)
         print("Touché !")
     else:
         colour(water_color)
@@ -521,6 +496,26 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
     
     pause()
     return brd_pc, brd_player_view
+
+
+def easy_level() -> tuple[int, int]:
+    """
+    Compute (Well, not really, but pretend) coordinates of the target.
+    :return: target.
+    """
+    return randint(0, 9), randint(0, 9)
+
+
+def average_level():
+    pass
+
+
+def difficult_level():
+    pass
+
+
+def impossible_level():
+    pass
 
 
 def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None]], level: int)\
@@ -550,7 +545,7 @@ def pc_round(brd_player: list[list[int]], brd_player_view: list[list[bool | None
     else:
         brd_player[target[0]][target[1]] = 2
 
-    print("C'est au tour de l'adversaire.")
+    print("\nC'est au tour de l'adversaire.")
     display_brd(brd_player_view)
     display_brd(brd_player, is_view=False)
     print(f"\nL'adversaire tire en {letters_place[target[1]]}{target[0]+1}")

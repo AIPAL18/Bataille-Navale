@@ -1,7 +1,7 @@
 ########################################################################################################################
 #                                                                                                                      #
-#                                                    BATAILLE NAVAL                                                    #
-#                                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                    #
+#                                                   BATAILLE NAVALE                                                    #
+#                                                   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                    #
 #                                                                                                                      #
 #                                          Par Elie Ruggiero et Enzo Chauvet                                           #
 #                                                                                                                      #
@@ -40,13 +40,12 @@ from functions import *
 
 # Initialise the game.
 playing = init()
-# Displays the rules of the game.
-rules()
 
 # Replay loop
 while playing:
     # Sets the variables
     running = True
+    mode = select_mode()
     level = select_level()
     is_player_round = first_player()  # True if the player start playing
     brd_pc, brd_player, brd_player_view = build_brd(10)

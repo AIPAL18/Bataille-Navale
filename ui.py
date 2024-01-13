@@ -1,20 +1,14 @@
-from os import system, name as os_name
+from os import system
 from colorama import Fore, Back
+from time import sleep
 
-clear_cmd = "cls"
+clear_cmd = "clear"
 default_color = Fore.LIGHTGREEN_EX + Back.BLACK
-red_color = Fore.RED
+red_color = Fore.LIGHTRED_EX
 water_color = Fore.LIGHTBLUE_EX
 intact = Fore.GREEN
 pause_color = Fore.LIGHTBLACK_EX
-infos_color = Fore.YELLOW
-
-if os_name == 'posix' or os_name == 'Linux':  # sys.platform ?
-    clear_cmd = "clear"
-    default_color = Fore.GREEN + Back.BLACK
-    water_color = Fore.BLUE
-    intact = Fore.LIGHTGREEN_EX
-    infos_color = Fore.LIGHTYELLOW_EX
+yellow_color = Fore.YELLOW
 
 
 def colour(*args) -> None:
@@ -69,35 +63,104 @@ def init() -> bool:
     :return: True.
     """
     clear()
+    system("TITLE Bataille Navale")
     colour(default_color)
-    print("""\n
+    print("""
     \t##########################################################
-    \t#                    BATAILLE NAVAL                      #
-    \t#                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      #
+    \t#                    BATAILLE NAVALE                     #
+    \t#                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                     #
     \t#                                                        #
     \t#           Par Elie Ruggiero et Enzo Chauvet            #
     \t#                                                        #
     \t#              Décembre 2023 - Janvier 2024              #
-    \t##########################################################\n\n""")
-    colour(infos_color)
+    \t##########################################################
+    """, end="\n\n")
     print("Nous vous conseillons, pour avoir une meilleur expérience, de démarrer ce programme "
-          "dans un invite de commande.\n\n")
+          "dans un invite de commande.\n")
+    print("Pour arrêter le jeu, pressez CTRL+C.\n\n")
+    
     pause()
     
     return True
 
 
-def rules() -> None:
+def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend: bool = True) -> None:
+    """
+    Displays a game board in the console.
+    :param brd: Game board view or game board.
+    :param is_view: True if it is game board view.
+    :param legend: Displays the legend if the value is True.
+    """
+    digits = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10"]
+
+    print("\n\t|    | A | B | C | D | E | F | G | H | I | J |")  # Column headers
+
+    for row in range(len(brd)):
+        print(f"\t| {digits[row]} |", end="")  # Line headers ≈≋
+
+        for cell in brd[row]:
+            if is_view:
+                if cell:
+                    colour(red_color)
+                    print(" ●", end="")
+                elif cell is False:
+                    colour(water_color)
+                    print(" ~", end="")
+                elif cell is None:
+                    print("  ", end="")
+            else:
+                if cell == 0:
+                    print("  ", end="")
+                elif cell == 1:
+                    colour(intact)
+                    print(" ◯", end="")
+                elif cell == 2:
+                    colour(water_color)
+                    print(" ~", end="")
+                elif cell == 3:
+                    colour(red_color)
+                    print(" ●", end="")
+            colour(default_color)
+            print(" |", end="")
+
+        if legend and is_view:
+            if row == 3:
+                print(f"\t\t{red_color}●{default_color}: touché", end="")
+            if row == 5:
+                print(f"\t\t{water_color}~{default_color}: dans l'eau.", end="")
+        elif legend:
+            if row == 3:
+                print(f"\t\t{red_color}●{default_color}: touché", end="")
+            elif row == 4:
+                print(f"\t\t{water_color}~{default_color}: dans l'eau.", end="")
+            elif row == 5:
+                print(f"\t\t{intact}◯{default_color}: intacte.", end="")
+
+        print()  # return to line
+    print()  # return to line
+
+
+def rules(mode) -> None:
     """
     Displays the rules of the game.
     """
-    clear()
-    print("\nDéroulement du jeu:\n"
-          "Chacun votre tour, vous tirerez sur le plateau ennemi en essayant de toucher ses navires.\n"
-          "Le premier à couler toute la flotte adverse gagne.\n"
-          "Bonne chance !\n")
-
-    pause()
+    if mode == 0:  # normal
+        print("Chacun votre tour, vous tirerez sur le plateau ennemi en essayant de toucher ses navires.",
+              "Le premier à couler toute la flotte adverse gagne.",
+              "Il n'y a pas de restriction de temps ni de coups"
+              "Bonne chance !", sep="\n", end="\n")
+    elif mode == 1:  # time trial
+        print("Vous avez vous tirerez sur le plateau ennemi en essayant de toucher ses navires.",
+              "Le premier à couler toute la flotte adverse gagne.",
+              "Bonne chance !", sep="\n", end="\n")
+    elif mode == 2:  # accurate
+        print("Chacun votre tour, vous tirerez sur le plateau ennemi en essayant de toucher ses navires.",
+              "Le premier à couler toute la flotte adverse gagne.",
+              "Bonne chance !", sep="\n", end="\n")
+    elif mode == 3:  # limited
+        print("Chacun votre tour, vous tirerez sur le plateau ennemi en essayant de toucher ses navires.",
+              "Le premier à couler toute la flotte adverse gagne.",
+              "Bonne chance !", sep="\n", end="\n")
 
 
 def clean() -> None:
