@@ -790,9 +790,23 @@ def difficult_level() -> tuple[int, int]:
     pass
 
 
-def impossible_level() -> tuple[int, int]:
+def impossible_level(brd_pc_view: list[list[int]], boats_player_dict: dict[str: dict[tuple[int, int]: bool]])\
+        -> tuple[int, int]:
     """
-    Ne vise que sur les bateaux de l'adversaire.
+    Ne vise que sur les bateaux de l'adversaire. (attention, il faut rester logique, la fonction ne s'attaque qu'à un
+    bateau à la fois et pas deux fois la même case !)
+    Petits rappels:
+    
+    0: vide, 1: dans l’eau, 2: touché, 3: coulé
+    
+    # ici les bateaux n'ont pas été attaqués
+    boats_player_dict = {
+        'porte-avion': {(0, 0): False, (1, 0): False, (2, 0): False, (3, 0): False, (4, 0): False},
+        'croiseur': {(6, 9): False, (7, 9): False, (8, 9): False, (9, 9): False},
+        'contre-torpilleur': {(8, 3): False, (8, 4): False, (8, 5): False},
+        'sous-marin': {(9, 0): False, (9, 1): False, (9, 2): False},
+        'torpilleur': {(7, 6): False, (7, 7): False}
+    }
     :return:
     """
     pass
