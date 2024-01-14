@@ -1,6 +1,12 @@
 # https://www.pythonguis.com/tutorials/qml-qtquick-python-application/
 from functions import *
-from random import choices
+
+colours = [Fore.LIGHTMAGENTA_EX, Fore.LIGHTYELLOW_EX, Fore.LIGHTCYAN_EX, Fore.LIGHTRED_EX, Fore.LIGHTBLUE_EX]
+chars = ['a', 's', 'c', 'm', 't']
+names = ['porte-avion', 'croiseur', 'contre-torpilleur', 'sous-marin', 'torpilleur']
+for item in zip(colours, chars, names):
+    print(item)
+"""from random import choices
 
 default_color = Fore.LIGHTWHITE_EX + Back.BLACK
 
@@ -168,6 +174,7 @@ for row_, coord in zip(odds, brd_coord):
     print()
 
 """
+"""
 use -> https://docs.python.org/3/library/configparser.html
 from https://en.wikipedia.org/wiki/Box-drawing_character
 
@@ -199,6 +206,7 @@ Make an interpreter after !
 
 Separate functions into several files (logically)
 """
+"""
 bold = False
 
 
@@ -226,3 +234,5 @@ else:
     right_down_corner = "┘"
     left_up_corner = "┌"
     left_down_corner = "└"
+
+"""

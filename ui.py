@@ -40,11 +40,13 @@ def error(*args, sep=' ', end='\n') -> None:
     colour(default_color)
 
 
-def clear() -> None:
+def clear(will_break_line=True) -> None:
     """
     Clear the console.
     """
     system("cls")  # asks the command prompt to execute the command
+    if will_break_line:
+        print("")  # break line (for the style)
 
 
 def wait_for_user() -> None:
@@ -61,18 +63,18 @@ def init() -> bool:
     Initialise the game. Launches the welcome screen with credits, displays game recommendations and colours the screen.
     :return: True.
     """
-    clear()
+    clear(False)
     system("TITLE Bataille Navale")
     colour(default_color)
     print("""
-    \t##########################################################
-    \t#                    BATAILLE NAVALE                     #
-    \t#                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                     #
-    \t#                                                        #
-    \t#           Par Elie Ruggiero et Enzo Chauvet            #
-    \t#                                                        #
-    \t#              Décembre 2023 - Janvier 2024              #
-    \t##########################################################
+        \t##########################################################
+        \t#                    BATAILLE NAVALE                     #
+        \t#                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                     #
+        \t#                                                        #
+        \t#           Par Elie Ruggiero et Enzo Chauvet            #
+        \t#                                                        #
+        \t#              Décembre 2023 - Janvier 2024              #
+        \t##########################################################
     """, end="\n\n")
     print("Nous vous conseillons, pour avoir une meilleur expérience, de démarrer ce programme "
           "dans un invite de commande.\n")
@@ -83,12 +85,49 @@ def init() -> bool:
     return True
 
 
-def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend: bool = True) -> None:
+def display_brd_id(boats_player: dict[str: dict[tuple[int, int]: bool]]) -> None:
+    """
+    Display a game board in the console, making it easy to identify the boats when you place them.
+    :param boats_player:
+    """
+    digits = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10"]
+    chars = [  # different characters for colour-blind people.
+        Fore.LIGHTMAGENTA_EX + '1' + default_color,
+        Fore.LIGHTYELLOW_EX + '2' + default_color,
+        Fore.LIGHTCYAN_EX + '3' + default_color,
+        Fore.LIGHTRED_EX + '4' + default_color,
+        Fore.LIGHTBLUE_EX + '5' + default_color
+    ]
+    boats_names = list(boats_player.keys())
+    brd_player = [["" for _ in range(10)] for _ in range(10)]
+    
+    for boat, char in zip(boats_player.values(), chars):  # boats_player.values() returns boat's dict
+        for coord in boat.keys():  # boat.keys() returns a coord
+            brd_player[coord[0]][coord[1]] = char
+
+    print("\n\t│    │ A │ B │ C │ D │ E │ F │ G │ H │ I │ J │")  # Column headers
+    
+    for row in range(len(brd_player)):
+        print(f"\t│ {digits[row]} │", end="")  # Line headers
+        
+        for cell in brd_player[row]:
+            if cell:
+                print(f" {cell} │", end="")
+            else:
+                print(f"   │", end="")
+            
+        if row % 2 == 0:  # one row out of two
+            print(f"\t\t{chars[row//2]}: {boats_names[row//2]}", end="")  # row//2 → 0, 1, 2, 3, 4.
+            
+        print()  # return to line
+    print()  # return to line
+
+
+def display_brd(brd: list[list[bool | None | int]], is_view: bool = True) -> None:
     """
     Displays a game board in the console.
     :param brd: Game board view or game board.
     :param is_view: True if it is game board view.
-    :param legend: Displays the legend if the value is True.
     """
     digits = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10"]
 
@@ -104,10 +143,10 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
                     print(" ●", end="")
                 elif cell is False:
                     colour(water_color)
-                    print(" ⌗", end="")
+                    print(" ■", end="")
                 elif cell is None:
                     print("  ", end="")
-            else:
+            else:  # not (is_view or id_boat)
                 if cell == 0:
                     print("  ", end="")
                 elif cell == 1:
@@ -115,23 +154,23 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
                     print(" ◯", end="")
                 elif cell == 2:
                     colour(water_color)
-                    print(" ⌗", end="")
+                    print(" ■", end="")
                 elif cell == 3:
                     colour(red_color)
                     print(" ●", end="")
             colour(default_color)
             print(" │", end="")
 
-        if legend and is_view:
+        if is_view:
             if row == 3:
                 print(f"\t\t{red_color}●{default_color}: touché", end="")
             if row == 5:
-                print(f"\t\t{water_color}⌗{default_color}: dans l'eau.", end="")
-        elif legend:
+                print(f"\t\t{water_color}■{default_color}: dans l'eau.", end="")
+        else:
             if row == 3:
                 print(f"\t\t{red_color}●{default_color}: touché", end="")
             elif row == 4:
-                print(f"\t\t{water_color}⌗{default_color}: dans l'eau.", end="")
+                print(f"\t\t{water_color}■{default_color}: dans l'eau.", end="")
             elif row == 5:
                 print(f"\t\t{intact}◯{default_color}: intacte.", end="")
 
@@ -200,13 +239,12 @@ def user_input(*args, colours=default_color) -> str:
                 # for security reasons (mainly development errors), KeyboardInterrupt and EOFError are not processed.
                 validation = input("\nVoulez-vous vraiment quitté le jeu ? (Y/n): ")
                 colour(Fore.RESET, Back.RESET)  # resets the colours of the command prompt.
-                validation = validation.upper()
+                validation = validation.upper().replace(' ', '')
                 
-                # N first because if the user wrote y and n by accident, we don't want to stop the game.
-                if 'N' in validation:
+                if 'N' == validation:
                     print("Bonne reprise !\n")
                     answered = True
-                elif 'Y' in validation:
+                elif 'Y' == validation:
                     will_quit = True
                     answered = True
                 else:

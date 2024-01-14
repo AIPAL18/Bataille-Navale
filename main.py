@@ -49,8 +49,8 @@ while playing:
     level = select_level()
     is_player_round = first_player()  # True if the player start playing
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
-    brd_player, boats_player = boat_placement_player(brd_player)
-    brd_pc, boats_pc = boat_placement_pc(brd_pc)
+    brd_player, boats_player_dict = boat_placement_player(brd_player)
+    brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
     
     # Game loop
     while running:
