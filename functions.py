@@ -28,6 +28,16 @@ def select_mode() -> int:
                     allowed = True
                 else:
                     error("La valeur entrée doit correspondre à un niveau de difficulté !")
+            elif entry == "lEs c@rroTteS s0nt cùites":
+                mode = -1
+                allowed = True
+                clear()
+                print("Choisissez le mode de jeu en inscrivant le numéro correspondant:",
+                      "\t1 - Le Nord Mâle",  # normal
+                      "\t2 - Le Comte Rellam-Honttre",  # contre-la-montre, 10 min pour gagner.
+                      "\t3 - L'habile lité",  # habilité/doigt de fée, précision, tu dois toucher 50 % du temps.
+                      "\t4 - Il reste un rein", sep="\n")  # restreint → nombre de coups limité
+                print("-> 1")
             else:  # is not int
                 error("La valeur entrée doit être un nombre !")
         else:  # empty
@@ -614,6 +624,10 @@ def limited_mode(level: int):
     
     # Tell the user, which one was the most precise.
     display_accuracy(brd_player, brd_pc)
+
+
+def cheat_mode(level: int):
+    pass
 
 
 def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:

@@ -47,7 +47,9 @@ while playing:
     mode = select_mode()
     level = select_level()
     
-    if mode == 0:
+    if mode == -1:
+        cheat_mode(level)
+    elif mode == 0:
         normal_mode(level)
     elif mode == 1:
         against_clock_mode(level)
