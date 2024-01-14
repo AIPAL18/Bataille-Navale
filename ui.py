@@ -1,5 +1,6 @@
 from os import system
 from colorama import Fore, Back
+from icecream import ic
 
 clear_cmd = "clear"
 default_color = Fore.LIGHTGREEN_EX + Back.BLACK
@@ -138,15 +139,18 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True) -> Non
 
         for cell in brd[row]:
             if is_view:
-                if cell:
-                    colour(red_color)
-                    print(" ●", end="")
-                elif cell is False:
+                if cell == 0:
+                    print("  ", end="")
+                elif cell == 1:
                     colour(water_color)
                     print(" ■", end="")
-                elif cell is None:
-                    print("  ", end="")
-            else:  # not (is_view or id_boat)
+                elif cell == 2:
+                    colour(red_color)
+                    print(" ●", end="")
+                elif cell == 3:
+                    colour(yellow_color)
+                    print(" ▲", end="")
+            else:  # not is_view
                 if cell == 0:
                     print("  ", end="")
                 elif cell == 1:
@@ -158,20 +162,27 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True) -> Non
                 elif cell == 3:
                     colour(red_color)
                     print(" ●", end="")
+                elif cell == 4:
+                    colour(yellow_color)
+                    print(" ▲", end="")
             colour(default_color)
             print(" │", end="")
 
         if is_view:
             if row == 3:
+                print(f"\t\t{yellow_color}▲{default_color}: coulé.", end="")
+            if row == 4:
                 print(f"\t\t{red_color}●{default_color}: touché", end="")
             if row == 5:
                 print(f"\t\t{water_color}■{default_color}: dans l'eau.", end="")
         else:
             if row == 3:
-                print(f"\t\t{red_color}●{default_color}: touché", end="")
+                print(f"\t\t{yellow_color}▲{default_color}: coulé.", end="")
             elif row == 4:
-                print(f"\t\t{water_color}■{default_color}: dans l'eau.", end="")
+                print(f"\t\t{red_color}●{default_color}: touché", end="")
             elif row == 5:
+                print(f"\t\t{water_color}■{default_color}: dans l'eau.", end="")
+            elif row == 6:
                 print(f"\t\t{intact}◯{default_color}: intacte.", end="")
 
         print()  # return to line

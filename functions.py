@@ -23,8 +23,8 @@ def select_mode() -> int:
         entry = user_input("-> ")
         if entry:
             if entry.isnumeric():
-                level = int(entry)
-                if 1 <= level <= 4:
+                mode = int(entry) - 1
+                if 0 <= mode <= 3:
                     allowed = True
                 else:
                     error("La valeur entrée doit correspondre à un niveau de difficulté !")
@@ -53,8 +53,8 @@ def select_level() -> int:
         entry = user_input("-> ")
         if entry:
             if entry.isnumeric():
-                level = int(entry)
-                if 1 <= level <= 4:
+                level = int(entry) - 1
+                if 0 <= level <= 3:
                     allowed = True
                 else:
                     error("La valeur entrée doit correspondre à un mode de jeu !")
@@ -82,15 +82,15 @@ def first_player() -> bool:
     return is_player_round
 
 
-def build_brd() -> tuple[list[list[int]], list[list[int]], list[list[bool | None]], list[list[bool | None]]]:
+def build_brd() -> tuple[list[list[int]], list[list[int]], list[list[int]], list[list[int]]]:
     """
     Build the game boards.
     :return: brd_pc, brd_player, brd_pc_view, brd_player_view.
     """
     brd_pc = [[0 for _ in range(10)] for _ in range(10)]
     brd_player = [[0 for _ in range(10)] for _ in range(10)]
-    brd_pc_view = [[None for _ in range(10)] for _ in range(10)]
-    brd_player_view = [[None for _ in range(10)] for _ in range(10)]
+    brd_pc_view = [[0 for _ in range(10)] for _ in range(10)]
+    brd_player_view = [[0 for _ in range(10)] for _ in range(10)]
     
     return brd_pc, brd_player, brd_pc_view, brd_player_view
 
@@ -133,7 +133,22 @@ def str_to_coordinates(coordinates_str: str) -> tuple[int, int] | int:
             return 1
     else:
         return 0
+    
 
+def determine_orientation(first_coord, second_coord) -> int | None:
+    """
+    
+    :param first_coord:
+    :param second_coord:
+    :return:
+    """
+    if first_coord[0] == second_coord[0]:  # horizontal
+        return 1
+    elif first_coord[1] == second_coord[1]:  # vertical
+        return 0
+    else:  # neither
+        return None
+    
 
 def str_to_boat_coordinates(coordinates_str: str, brd_player: list[list[int]],
                             boats_player: dict[str: dict[tuple[int, int]: bool]])\
@@ -455,23 +470,26 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict[st
     :param brd_pc: computer's game board.
     :return: brd_pc, boats_pc.
     """
+    clear()
     boats_list = [5, 4, 3, 3, 2]
+    boats_name = ["porte-avion", "croiseur", "contre-torpilleur", "sous-marin", "torpilleur"]
     boats_pc = {
-        "porte-avion": [],
-        "croiseur": [],
-        "contre-torpilleur": [],
-        "sous-marin": [],
-        "torpilleur": []
+        "porte-avion": {},
+        "croiseur": {},
+        "contre-torpilleur": {},
+        "sous-marin": {},
+        "torpilleur": {}
     }
     i = 0
 
-    print("\n\nL'adversaire positionne ses bateaux...")
+    print("L'adversaire positionne ses bateaux...")
     
     while i < len(boats_list):
         size = boats_list[i]
+        name = boats_name[i]
         orientation = randint(0, 1)
         
-        if orientation == 0:  # vertical
+        if orientation:  # vertical
             letter = randint(0, 9)
             first_number = randint(0, 9 - size)
             allowed = True
@@ -481,6 +499,7 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict[st
             if allowed:
                 for number in range(first_number, first_number + size):
                     brd_pc[letter][number] = 1
+                    boats_pc[name][(letter, number)] = False
                 i += 1
         
         else:  # horizontal
@@ -493,11 +512,108 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict[st
             if allowed:
                 for letter in range(first_letter, first_letter + size):
                     brd_pc[letter][number] = 1
+                    boats_pc[name][(letter, number)] = False
                 i += 1
 
     sleep(3)  # simulation of the pc placing its boats
 
     return brd_pc, boats_pc
+
+
+def normal_mode(level: int):
+    is_player_turn = first_player()  # True if the player start playing
+    brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
+    brd_player, boats_player_dict = boat_placement_player(brd_player)
+    brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
+    
+    # Game loop
+    running = True
+    while running:
+        if is_player_turn:  # player's round
+            brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view)
+            is_player_turn = False
+        
+        else:  # computer's round
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            is_player_turn = True
+        
+        # Check to see if anyone has won and if so, stop the game.
+        running = not win(brd_player, brd_pc)
+    
+    # Tell the user, which one was the most precise.
+    display_accuracy(brd_player, brd_pc)
+
+
+def against_clock_mode(level: int):
+    is_player_turn = first_player()  # True if the player start playing
+    brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
+    brd_player, boats_player_dict = boat_placement_player(brd_player)
+    brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
+    
+    # Game loop
+    running = True
+    while running:
+        if is_player_turn:  # player's round
+            brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view)
+            is_player_turn = False
+        
+        else:  # computer's round
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            is_player_turn = True
+        
+        # Check to see if anyone has won and if so, stop the game.
+        running = not win(brd_player, brd_pc)
+    
+    # Tell the user, which one was the most precise.
+    display_accuracy(brd_player, brd_pc)
+
+
+def accuracy_mode(level: int):
+    is_player_turn = first_player()  # True if the player start playing
+    brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
+    brd_player, boats_player_dict = boat_placement_player(brd_player)
+    brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
+    
+    # Game loop
+    running = True
+    while running:
+        if is_player_turn:  # player's round
+            brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view)
+            is_player_turn = False
+        
+        else:  # computer's round
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            is_player_turn = True
+        
+        # Check to see if anyone has won and if so, stop the game.
+        running = not win(brd_player, brd_pc)
+    
+    # Tell the user, which one was the most precise.
+    display_accuracy(brd_player, brd_pc)
+
+
+def limited_mode(level: int):
+    is_player_turn = first_player()  # True if the player start playing
+    brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
+    brd_player, boats_player_dict = boat_placement_player(brd_player)
+    brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
+    
+    # Game loop
+    running = True
+    while running:
+        if is_player_turn:  # player's round
+            brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view)
+            is_player_turn = False
+        
+        else:  # computer's round
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            is_player_turn = True
+        
+        # Check to see if anyone has won and if so, stop the game.
+        running = not win(brd_player, brd_pc)
+    
+    # Tell the user, which one was the most precise.
+    display_accuracy(brd_player, brd_pc)
 
 
 def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
@@ -519,7 +635,7 @@ def is_boat_sunk(boat_dict: dict[tuple[int, int]: bool]) -> bool:
     return all(boat_dict.values())
 
 
-def reset_player_round_screen(brd_player: list[list[int]], brd_player_view: list[list[bool | None]]):
+def reset_player_round_screen(brd_player: list[list[int]], brd_player_view: list[list[int]]):
     """
     
     :param brd_player: Player's game board.
@@ -532,8 +648,8 @@ def reset_player_round_screen(brd_player: list[list[int]], brd_player_view: list
     display_brd(brd_player, is_view=False)
 
 
-def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player_view: list[list[bool | None]])\
-        -> tuple[list[list[int]], list[list[bool | None]]]:
+def player_turn(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player_view: list[list[int]])\
+        -> tuple[list[list[int]], list[list[int]]]:
     """
     Makes the user play.
     :param brd_pc: Computer's game board.
@@ -563,10 +679,10 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
 
     if is_hit(brd_pc, target):
         brd_pc[target[0]][target[1]] = 3
-        brd_player_view[target[0]][target[1]] = True
+        brd_player_view[target[0]][target[1]] = 2
     else:
         brd_pc[target[0]][target[1]] = 2
-        brd_player_view[target[0]][target[1]] = False
+        brd_player_view[target[0]][target[1]] = 1
 
     clear()
     print(f"Tire en {entry}")
@@ -574,7 +690,7 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
     display_brd(brd_player, is_view=False)
 
     if is_hit(brd_pc, target):
-        colour(yellow_color)
+        colour(red_color)
         print("Touché !")
     else:
         colour(water_color)
@@ -585,28 +701,105 @@ def player_round(brd_pc: list[list[int]], brd_player: list[list[int]], brd_playe
     return brd_pc, brd_player_view
 
 
-def easy_level() -> tuple[int, int]:
+def easy_level(brd_pc_view: list[list[int]]) -> tuple[int, int]:
     """
     Compute (Well, not really, but pretend) coordinates of the target.
     :return: target.
     """
-    return randint(0, 9), randint(0, 9)
+    free = value_in_matrix(brd_pc_view, 0)
+    return choice(free)
 
 
-def average_level():
+def value_in_matrix(matrix: list[list], value) -> list[tuple[int, int]]:
+    """
+    
+    :param matrix:
+    :param value:
+    :return:
+    """
+    value_places = []
+    for i, row in enumerate(matrix, 0):
+        for j, cell in enumerate(row, 0):
+            if cell == value:
+                value_places.append((i, j))
+    
+    return value_places
+
+
+def should_shoot(hit_coord: list[tuple[int, int]], brd_view: list[list[int]]) -> list[tuple[int, int]]:
+    """
+    Shoot the cell from below, above, right or left if it has not been hit.
+    :param hit_coord:
+    :param brd_view:
+    :return:
+    """
+    too_shoot = []
+    if len(hit_coord) == 1:
+        coord = hit_coord[0]
+        # all the possibilities:
+        virtual_shoot = [(coord[0] - 1, coord[1]),
+                         (coord[0] + 1, coord[1]),
+                         (coord[0], coord[1] - 1),
+                         (coord[0], coord[1] + 1)]
+        
+        for coord_shoot in virtual_shoot:
+            if 0 <= coord_shoot[0] <= 9 and 0 <= coord_shoot[1] <= 9:
+                if brd_view[coord_shoot[0]][coord_shoot[1]] == 0:  # not already shot
+                    too_shoot.append(coord_shoot)
+    else:
+        orientation = determine_orientation(hit_coord[0], hit_coord[-1])
+        ic(orientation)
+        virtual_shoot = []
+        for coord in hit_coord:
+            if orientation:  # True → 1 → Horizontal.
+                virtual_shoot.append((coord[0], coord[1] - 1))
+                virtual_shoot.append((coord[0], coord[1] + 1))
+            elif orientation == 0:  # 0 → Vertical.
+                virtual_shoot.append((coord[0] - 1, coord[1]))
+                virtual_shoot.append((coord[0] + 1, coord[1]))
+        
+        for coord_shoot in virtual_shoot:
+            if 0 <= coord_shoot[0] <= 9 and 0 <= coord_shoot[1] <= 9:
+                if brd_view[coord_shoot[0]][coord_shoot[1]] == 0:  # not already shot
+                    too_shoot.append(coord_shoot)
+    
+    return ic(too_shoot)
+
+
+def intermediate_level(brd_pc_view: list[list[int]]) -> tuple[int, int]:
+    """
+    
+    :param brd_pc_view:
+    :return:
+    """
+    hit_coord = value_in_matrix(brd_pc_view, 2)  # hit cells
+    if hit_coord:  # hit_coord isn't empty == True
+        """
+        regarder quelles cases ne sont pas possible en fonction des tailles de bateaux qu'il reste !
+        """
+        return choice(should_shoot(hit_coord, brd_pc_view))
+    else:  # hit_coord is empty == False
+        return easy_level(brd_pc_view)
+
+
+def difficult_level() -> tuple[int, int]:
+    """
+    Pareil que "intermediate_level". Sauf quand il faut tirer au pif, la fonction utilise "compute_odds3".
+    :return:
+    """
     pass
 
 
-def difficult_level():
+def impossible_level() -> tuple[int, int]:
+    """
+    Ne vise que sur les bateaux de l'adversaire.
+    :return:
+    """
     pass
 
 
-def impossible_level():
-    pass
-
-
-def pc_round(brd_player: list[list[int]], brd_pc_view: list[list[bool | None]],
-             brd_player_view: list[list[bool | None]], level: int) -> list[list[int]]:
+def pc_turn(brd_player: list[list[int]], brd_pc_view: list[list[int]],
+            brd_player_view: list[list[int]], level: int) -> list[list[int]]:
     """
     Makes the computer play.
     :param brd_player: Player's game board.
@@ -617,23 +810,23 @@ def pc_round(brd_player: list[list[int]], brd_pc_view: list[list[bool | None]],
     """
     clear()
     letters_place = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J'}
-    target = ()
+    target = (randint(0, 9), randint(0, 9))
 
-    if level == 1:
+    if level == 0:
         target = (randint(0, 9), randint(0, 9))
+    elif level == 1:
+        pass
     elif level == 2:
-        partial_brd = []
-        choice(partial_brd)
+        pass
     elif level == 3:
-        partial_brd = []
-        choice(partial_brd)
+        pass
 
     if is_hit(brd_player, target):
         brd_player[target[0]][target[1]] = 3
-        brd_pc_view[target[0]][target[1]] = True
+        brd_pc_view[target[0]][target[1]] = 2
     else:
         brd_player[target[0]][target[1]] = 2
-        brd_pc_view[target[0]][target[1]] = False
+        brd_pc_view[target[0]][target[1]] = 1
 
     print("C'est au tour de l'adversaire.")
     display_brd(brd_player_view)

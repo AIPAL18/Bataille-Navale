@@ -1,11 +1,6 @@
 # https://www.pythonguis.com/tutorials/qml-qtquick-python-application/
 from functions import *
 
-colours = [Fore.LIGHTMAGENTA_EX, Fore.LIGHTYELLOW_EX, Fore.LIGHTCYAN_EX, Fore.LIGHTRED_EX, Fore.LIGHTBLUE_EX]
-chars = ['a', 's', 'c', 'm', 't']
-names = ['porte-avion', 'croiseur', 'contre-torpilleur', 'sous-marin', 'torpilleur']
-for item in zip(colours, chars, names):
-    print(item)
 """from random import choices
 
 default_color = Fore.LIGHTWHITE_EX + Back.BLACK
@@ -236,3 +231,33 @@ else:
     left_down_corner = "└"
 
 """
+
+brd_player = [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+              [0, 0, 0, 0, 0, 0, 1, 1, 0, 1],
+              [0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+              [1, 1, 1, 0, 0, 0, 0, 0, 0, 1]]
+brd_pc_view = [[3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [3, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+               [3, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+               [3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0, 1, 0, 0, 3],
+               [0, 0, 0, 0, 0, 1, 3, 3, 0, 3],
+               [1, 0, 0, 3, 3, 3, 1, 0, 0, 3],
+               [3, 3, 3, 0, 0, 0, 0, 0, 1, 3]]
+boats_player_dict = {
+    'porte-avion': {(0, 0): False, (1, 0): False, (2, 0): False, (3, 0): False, (4, 0): False},
+    'croiseur': {(6, 9): False, (7, 9): False, (8, 9): False, (9, 9): False},
+    'contre-torpilleur': {(8, 3): False, (8, 4): False, (8, 5): False},
+    'sous-marin': {(9, 0): False, (9, 1): False, (9, 2): False},
+    'torpilleur': {(7, 6): False, (7, 7): False}
+}
+
+print('result:', intermediate_level(brd_pc_view))

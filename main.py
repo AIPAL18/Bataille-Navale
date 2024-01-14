@@ -44,29 +44,17 @@ playing = init()  # why does it return true ?
 # Replay loop
 while playing:
     # Sets the variables
-    running = True
     mode = select_mode()
     level = select_level()
-    is_player_round = first_player()  # True if the player start playing
-    brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
-    brd_player, boats_player_dict = boat_placement_player(brd_player)
-    brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
     
-    # Game loop
-    while running:
-        if is_player_round:  # player's round
-            brd_pc, brd_player_view = player_round(brd_pc, brd_player, brd_player_view)
-            is_player_round = False
-        
-        else:  # computer's round
-            brd_player = pc_round(brd_player, brd_pc_view, brd_player_view, level)
-            is_player_round = True
-        
-        # Check to see if anyone has won and if so, stop the game.
-        running = not win(brd_player, brd_pc)
-    
-    # Tell the user, which one was the most precise.
-    display_accuracy(brd_player, brd_pc)
+    if mode == 0:
+        normal_mode(level)
+    elif mode == 1:
+        against_clock_mode(level)
+    elif mode == 2:
+        accuracy_mode(level)
+    elif mode == 3:
+        limited_mode(level)
 
     # Asks the user if he wants to play again.
     playing = will_replay()
