@@ -39,7 +39,7 @@
 from functions import *
 
 # Initialise the game.
-playing = init()
+playing = init()  # why does it return true ?
 
 # Replay loop
 while playing:
@@ -48,7 +48,7 @@ while playing:
     mode = select_mode()
     level = select_level()
     is_player_round = first_player()  # True if the player start playing
-    brd_pc, brd_player, brd_player_view = build_brd(10)
+    brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
     brd_player, boats_player = boat_placement_player(brd_player)
     brd_pc, boats_pc = boat_placement_pc(brd_pc)
     
@@ -59,7 +59,7 @@ while playing:
             is_player_round = False
         
         else:  # computer's round
-            brd_player = pc_round(brd_player, brd_player_view, level)
+            brd_player = pc_round(brd_player, brd_pc_view, brd_player_view, level)
             is_player_round = True
         
         # Check to see if anyone has won and if so, stop the game.
@@ -69,14 +69,7 @@ while playing:
     display_accuracy(brd_player, brd_pc)
 
     # Asks the user if he wants to play again.
-    replay = user_input("Voulez-vous rejouer ? (Y/n): ")
-    replay = replay.upper()
-    if 'N' in replay:
-        playing = False
-    elif 'Y' not in replay:  # if neither N nor Y are contained in "replay".
-        print("Nous n'avons pas comprit, mais comme le jeu est incroyable, nous allons vous faire rejouer!\n"
-              "(Pour annuler presser les touches CTRL et C simultanément)")
-        wait_for_user()
+    playing = will_replay()
 
 # Resets the colours of the command prompt.
 clean()

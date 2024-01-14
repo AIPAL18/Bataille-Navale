@@ -1,6 +1,5 @@
 from os import system
 from colorama import Fore, Back
-from time import sleep
 
 clear_cmd = "clear"
 default_color = Fore.LIGHTGREEN_EX + Back.BLACK
@@ -52,8 +51,8 @@ def wait_for_user() -> None:
     """
     Pause the game.
     """
-    colour(pause_color)
-    user_input('(pressez Entrer)')  # waits until the user press Enter & prays that he doesn't raise an error 🤞.
+    # waits until the user press Enter & prays that he doesn't raise an error 🤞.
+    user_input('\n(pressez Entrer)', colours=pause_color)
     colour(default_color)
 
 
@@ -77,7 +76,7 @@ def init() -> bool:
     """, end="\n\n")
     print("Nous vous conseillons, pour avoir une meilleur expérience, de démarrer ce programme "
           "dans un invite de commande.\n")
-    print("Pour arrêter le jeu, pressez CTRL+C.\n\n")
+    print("Pour arrêter le jeu, pressez CTRL+C.\n")
     
     wait_for_user()
     
@@ -93,10 +92,10 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
     """
     digits = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10"]
 
-    print("\n\t|    | A | B | C | D | E | F | G | H | I | J |")  # Column headers
+    print("\n\t│    │ A │ B │ C │ D │ E │ F │ G │ H │ I │ J │")  # Column headers
 
     for row in range(len(brd)):
-        print(f"\t| {digits[row]} |", end="")  # Line headers
+        print(f"\t│ {digits[row]} │", end="")  # Line headers
 
         for cell in brd[row]:
             if is_view:
@@ -121,7 +120,7 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True, legend
                     colour(red_color)
                     print(" ●", end="")
             colour(default_color)
-            print(" |", end="")
+            print(" │", end="")
 
         if legend and is_view:
             if row == 3:
@@ -170,50 +169,52 @@ def clean() -> None:
     colour(Fore.RESET, Back.RESET)
 
 
-def user_input(*args) -> str:
+def user_input(*args, colours=default_color) -> str:
     """
-    Catch CTRL+C and CTRL+Z+Enter, which end the program,
-    Args:
-        *args:
-
-    Returns:
-
+    
+    :param args:
+    :param colours:
+    :return:
     """
-    error_raised = answered = will_quit = False
+    finish = False
     entry = ""
     
-    for arg in args:
-        print(arg, end="")
-    
-    try:
-        entry = input()
-    except KeyboardInterrupt:
-        error_raised = True
-    except EOFError:
-        error_raised = True
-    
-    if error_raised:  # it may be an error
-        while not answered:
-            colour(yellow_color)
-            # for security reasons (mainly development errors), KeyboardInterrupt and EOFError are not processed.
-            validation = input("\nVoulez-vous vraiment quitté le jeu ? (Y/n): ")
-            colour(Fore.RESET, Back.RESET)  # resets the colours of the command prompt.
-            validation = validation.upper()
-            
-            # N first because if the user wrote y and n by accident, we don't want to stop the game.
-            if 'N' in validation:
-                print("Bonne reprise !")
-                colour(default_color)
-                answered = True
-            elif 'Y' in validation:
-                will_quit = True
-                answered = True
-            else:
-                print("Nous n'avons pas comprit...")
+    # if the user raises an error and enters "N", it asks again, while allowing the user to raise an error.
+    while not finish:
+        error_raised = answered = will_quit = False
+        colour(colours)
+        for arg in args:
+            print(arg, end="")
         
-        if will_quit:
-            print("Au revoir !")
-            quit()  # quits the program properly
+        try:
+            entry = input()
+            finish = True
+        except KeyboardInterrupt:
+            error_raised = True
+        except EOFError:
+            error_raised = True
+        
+        if error_raised:  # it may be an error
+            while not answered:
+                colour(yellow_color)
+                # for security reasons (mainly development errors), KeyboardInterrupt and EOFError are not processed.
+                validation = input("\nVoulez-vous vraiment quitté le jeu ? (Y/n): ")
+                colour(Fore.RESET, Back.RESET)  # resets the colours of the command prompt.
+                validation = validation.upper()
+                
+                # N first because if the user wrote y and n by accident, we don't want to stop the game.
+                if 'N' in validation:
+                    print("Bonne reprise !\n")
+                    answered = True
+                elif 'Y' in validation:
+                    will_quit = True
+                    answered = True
+                else:
+                    print("Nous n'avons pas comprit...")
+            
+            if will_quit:
+                print("Au revoir !")
+                quit()  # quits the program properly
 
     return entry
 

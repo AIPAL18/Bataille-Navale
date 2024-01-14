@@ -113,8 +113,8 @@ def display(odds_):
 
 def flatten_extend(matrix):
     flat_list = []
-    for row in matrix:
-        flat_list.extend(row)
+    for row_ in matrix:
+        flat_list.extend(row_)
     return flat_list
 
 
@@ -134,35 +134,95 @@ for _ in range(100):
 
 print()
 
-for row, coord in zip(odds, brd_coord):
+for row_, coord in zip(odds, brd_coord):
     print("|", end="")
-    for cell, case in zip(row, coord):
+    for cell_, case in zip(row_, coord):
         if case in dico:
-            if cell == empty_value:
+            if cell_ == empty_value:
                 colour(Fore.WHITE)
                 print(f"  {dico[case]}{" " if dico[case] < 10 else ""} ", end="")
-            elif cell == first_tier:
+            elif cell_ == first_tier:
                 colour(Fore.LIGHTYELLOW_EX)
                 print(f"  {dico[case]}{" " if dico[case] < 10 else ""} ", end="")
-            elif cell == second_tier:
+            elif cell_ == second_tier:
                 colour(Fore.LIGHTMAGENTA_EX)
                 print(f"  {dico[case]}{" " if dico[case] < 10 else ""} ", end="")
-            elif cell == full_tier:
+            elif cell_ == full_tier:
                 colour(Fore.LIGHTRED_EX)
                 print(f"  {dico[case]}{" " if dico[case] < 10 else ""} ", end="")
         else:
-            if cell == empty_value:
+            if cell_ == empty_value:
                 colour(Fore.WHITE)
                 print(f"  0  ", end="")
-            elif cell == first_tier:
+            elif cell_ == first_tier:
                 colour(Fore.LIGHTYELLOW_EX)
                 print(f"  0  ", end="")
-            elif cell == second_tier:
+            elif cell_ == second_tier:
                 colour(Fore.LIGHTMAGENTA_EX)
                 print(f"  0  ", end="")
-            elif cell == full_tier:
+            elif cell_ == full_tier:
                 colour(Fore.LIGHTRED_EX)
                 print(f"  0  ", end="")
         colour(default_color)
         print(f"|", end="")
     print()
+
+"""
+use -> https://docs.python.org/3/library/configparser.html
+from https://en.wikipedia.org/wiki/Box-drawing_character
+
+bold = True/False
+minimal = True/False
+
+minimal = True and bold = False:
+1 │
+2 │
+minimal = False and bold = False
+1 │
+──┼──
+2 │
+minimal = True and bold = True:
+1 ┃
+2 ┃
+minimal = False and bold = True
+1 ┃
+━━╋━━
+2 ┃
+
+In config add colors:
+[COLORS]
+intact = blue
+hit = yellow
+...
+
+Make an interpreter after !
+
+Separate functions into several files (logically)
+"""
+bold = False
+
+
+if bold:
+    vertical_line = "┃"
+    vertical_border_left = "┣"
+    vertical_border_right = "┫"
+    horizontal_line = "━"
+    horizontal_border_up = "┳"
+    horizontal_border_down = "┻"
+    intersection_line = "╋"
+    right_up_corner = "┓"
+    right_down_corner = "┛"
+    left_up_corner = "┏"
+    left_down_corner = "┗"
+else:
+    vertical_line = "│"
+    vertical_border_left = "├"
+    vertical_border_right = "┤"
+    horizontal_line = "─"
+    horizontal_border_up = "┬"
+    horizontal_border_down = "┴"
+    intersection_line = "┼"
+    right_up_corner = "┐"
+    right_down_corner = "┘"
+    left_up_corner = "┌"
+    left_down_corner = "└"
