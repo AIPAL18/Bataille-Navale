@@ -879,7 +879,7 @@ def accuracy(brd) -> int:
     :return:
     """
     # En fin de compte, accuracy retourne la précision (entre 0 et 1, car c'est un pourcentage).
-    # C'est dans le fichier main qu'on affichera lequel des deux a été le meilleur.
+    # C'est dans le fichier les fonctions de mode de jeu qu'on affichera lequel des deux a été le meilleur.
     pass
 
 
