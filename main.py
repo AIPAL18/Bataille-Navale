@@ -45,6 +45,8 @@ playing = init()  # why does it return true ?
 while playing:
     # Sets the variables
     mode = select_mode()
+    print('\n-------------------------------------------------------'
+          '-------------------------------------------------------', end="")
     level = select_level()
     
     if mode == -1:

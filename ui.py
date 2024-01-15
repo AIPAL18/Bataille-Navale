@@ -189,29 +189,6 @@ def display_brd(brd: list[list[bool | None | int]], is_view: bool = True) -> Non
     print()  # return to line
 
 
-def rules(mode) -> None:
-    """
-    Displays the rules of the game.
-    """
-    if mode == 0:  # normal
-        print("Chacun votre tour, vous tirerez sur le plateau ennemi en essayant de toucher ses navires.",
-              "Le premier à couler toute la flotte adverse gagne.",
-              "Il n'y a pas de restriction de temps ni de coups"
-              "Bonne chance !", sep="\n", end="\n")
-    elif mode == 1:  # time trial
-        print("Vous avez vous tirerez sur le plateau ennemi en essayant de toucher ses navires.",
-              "Le premier à couler toute la flotte adverse gagne.",
-              "Bonne chance !", sep="\n", end="\n")
-    elif mode == 2:  # accurate
-        print("Chacun votre tour, vous tirerez sur le plateau ennemi en essayant de toucher ses navires.",
-              "Le premier à couler toute la flotte adverse gagne.",
-              "Bonne chance !", sep="\n", end="\n")
-    elif mode == 3:  # limited
-        print("Chacun votre tour, vous tirerez sur le plateau ennemi en essayant de toucher ses navires.",
-              "Le premier à couler toute la flotte adverse gagne.",
-              "Bonne chance !", sep="\n", end="\n")
-
-
 def clean() -> None:
     """
     Resets the colours of the command prompt.
