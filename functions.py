@@ -366,16 +366,16 @@ def delete_boat(brd_player: list[list[int]], boats_player: dict[str: dict[tuple[
     :param boat_name: Name of the boat.
     :return: brd_player, boats_player.
     """
-    for row, cell in boats_player[boat_name].keys():
-        brd_player[row][cell] = 0
-    
-    boats_player[boat_name] = {}
-    
-    return brd_player, boats_player
-
-
-def replace_boat():
-    pass
+    # for row, cell in boats_player[boat_name].keys():
+    #     brd_player[row][cell] = 0
+    #
+    # boats_player[boat_name] = {}
+    #
+    # return brd_player, boats_player
+    """
+    Pour des raisons évidentes de développement de boat_placement_player, j'ai besoin de la fonction.
+    Mais je te laisse la faire à ta manière Enzo !!
+    """
 
 
 def boat_placement_player(brd_player: list[list[int]])\
@@ -461,9 +461,10 @@ def boat_placement_player(brd_player: list[list[int]])\
                     print(f"\t{i} -> {name}{" " * (22 - len(name))}({boats_size_list[name]} cases)")
                 replace_entry = user_input("-> ")
                 if replace_entry:  # not empty
+                    # do things before
                     replaced = True
                 else:
-                    error("")
+                    error("Empty")
                 clear()
         elif 'N' == want_replace:
             keep_modifying = False
@@ -627,7 +628,37 @@ def limited_mode(level: int):
 
 
 def cheat_mode(level: int):
-    pass
+    """
+    
+    :param level:
+    :return:
+    """
+    """
+    Elie.
+    La base de jeu est la même, cependant, au lieu de laisser le joueur tirer comme bon lui semble avec player_turn(),
+    on choisit nous-même (avec impossible_level()). Ne pas oublier de print les même infos que pour player_turn().
+    """
+    is_player_turn = first_player()  # True if the player start playing
+    brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
+    brd_player, boats_player_dict = boat_placement_player(brd_player)
+    brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
+    
+    # Game loop
+    running = True
+    while running:
+        if is_player_turn:  # player's round
+            brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view)
+            is_player_turn = False
+        
+        else:  # computer's round
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            is_player_turn = True
+        
+        # Check to see if anyone has won and if so, stop the game.
+        running = not win(brd_player, brd_pc)
+    
+    # Tell the user, which one was the most precise.
+    display_accuracy(brd_player, brd_pc)
 
 
 def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
@@ -801,17 +832,27 @@ def difficult_level() -> tuple[int, int]:
     Pareil que "intermediate_level". Sauf quand il faut tirer au pif, la fonction utilise "compute_odds3".
     :return:
     """
-    pass
+    """
+    Elie
+    """
 
 
 def impossible_level(brd_pc_view: list[list[int]], boats_player_dict: dict[str: dict[tuple[int, int]: bool]])\
         -> tuple[int, int]:
     """
+    
+    :param brd_pc_view:
+    :param boats_player_dict:
+    :return:
+    """
+    """
+    Enzo.
     Ne vise que sur les bateaux de l'adversaire. (attention, il faut rester logique, la fonction ne s'attaque qu'à un
     bateau à la fois et pas deux fois la même case !)
+    Attention !! La fonction est utilisée pour le bot et le pc, donc il ne faut rien afficher !!!!
     Petits rappels:
     
-    0: vide, 1: dans l’eau, 2: touché, 3: coulé
+    view -> 0: vide, 1: dans l’eau, 2: touché, 3: coulé
     
     # ici les bateaux n'ont pas été attaqués
     boats_player_dict = {
@@ -821,7 +862,6 @@ def impossible_level(brd_pc_view: list[list[int]], boats_player_dict: dict[str: 
         'sous-marin': {(9, 0): False, (9, 1): False, (9, 2): False},
         'torpilleur': {(7, 6): False, (7, 7): False}
     }
-    :return:
     """
     pass
 
