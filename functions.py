@@ -948,6 +948,7 @@ def accuracy(brd) -> int:
     """
     # En fin de compte, accuracy retourne la précision (entre 0 et 1, car c'est un pourcentage).
     # C'est dans le fichier les fonctions de mode de jeu qu'on affichera lequel des deux a été le meilleur.
+    # enzo
     pass
 
 
@@ -958,6 +959,7 @@ def display_accuracy(brd_player, brd_pc) -> None:
     :param brd_pc:
     :return:
     """
+    # enzo
     player_accuracy = accuracy(brd_player)
     pc_accuracy = accuracy(brd_pc)
     if player_accuracy < pc_accuracy:
