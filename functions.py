@@ -366,16 +366,14 @@ def delete_boat(brd_player: list[list[int]], boats_player: dict[str: dict[tuple[
     :param boat_name: Name of the boat.
     :return: brd_player, boats_player.
     """
-    # for row, cell in boats_player[boat_name].keys():
-    #     brd_player[row][cell] = 0
-    #
-    # boats_player[boat_name] = {}
-    #
-    # return brd_player, boats_player
     """
     Pour des raisons évidentes de développement de boat_placement_player, j'ai besoin de la fonction.
     Mais je te laisse la faire à ta manière Enzo !!
     """
+    for row, cell in boats_player[boat_name].keys():
+        brd_player[row][cell] = 0
+    
+    return brd_player, boats_player
 
 
 def boat_placement_player(brd_player: list[list[int]])\
@@ -671,13 +669,17 @@ def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
     return brd[target[0]][target[1]] == 1 or brd[target[0]][target[1]] == 3
 
 
-def is_boat_sunk(boat_dict: dict[tuple[int, int]: bool]) -> bool:
+def boats_sunk(boats_dict: dict[str: dict[tuple[int, int]: bool]]) -> list[str]:
     """
     
-    :param boat_dict:
+    :param boats_dict:
     :return:
     """
-    return all(boat_dict.values())
+    boat_name = []
+    for boat in boats_dict:
+        if all(boats_dict[boat].values()):  # if 'all values in boats_dict[boat].values() are True'
+            boat_name.append(boat)
+    return boat_name
 
 
 def reset_player_round_screen(brd_player: list[list[int]], brd_player_view: list[list[int]]):
@@ -822,8 +824,10 @@ def intermediate_level(brd_pc_view: list[list[int]]) -> tuple[int, int]:
         """
         regarder quelles cases ne sont pas possible en fonction des tailles de bateaux qu'il reste !
         """
+        print("we know...")
         return choice(should_shoot(hit_coord, brd_pc_view))
     else:  # hit_coord is empty == False
+        print("au pif")
         return easy_level(brd_pc_view)
 
 

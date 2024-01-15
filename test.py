@@ -249,7 +249,7 @@ brd_pc_view = [[3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                [3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 1, 0, 0, 3],
-               [0, 0, 0, 0, 0, 1, 3, 3, 0, 3],
+               [0, 0, 0, 0, 0, 1, 3, 0, 0, 3],
                [1, 0, 0, 3, 3, 3, 1, 0, 0, 3],
                [3, 3, 3, 0, 0, 0, 0, 0, 1, 3]]
 boats_player_dict = {
@@ -259,5 +259,7 @@ boats_player_dict = {
     'sous-marin': {(9, 0): False, (9, 1): False, (9, 2): False},
     'torpilleur': {(7, 6): False, (7, 7): False}
 }
+
+print(boats_sunk(boats_player_dict))
 
 print('result:', intermediate_level(brd_pc_view))
