@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Tuple
+
 from ui import *
 from random import randint, choice
 import re
@@ -18,7 +22,7 @@ def select_mode() -> int:
           "\t2 - Le Comte Rellam-Honttre",  # contre-la-montre, 10 min pour gagner.
           "\t3 - L'habile lité",  # habilité/doigt de fée, précision, tu dois toucher 50 % du temps.
           "\t4 - Il reste un rein", sep="\n")  # restreint → nombre de coups limité
-    
+
     while not allowed:
         entry = user_input("-> ")
         if entry:
@@ -42,7 +46,7 @@ def select_mode() -> int:
                 error("La valeur entrée doit être un nombre !")
         else:  # empty
             error("Vous devez entrer une valeur !")
-    
+
     return mode
 
 
@@ -52,13 +56,13 @@ def select_level() -> int:
     """
     level = 0
     allowed = False
-    
+
     print("\n\nChoisissez le niveau de difficulté du jeu en inscrivant le numéro correspondant:",
           "\t1 - Facile",
           "\t2 - Moyen",
           "\t3 - Difficile",
           "\t4 - Impossible", sep="\n")
-    
+
     while not allowed:
         entry = user_input("-> ")
         if entry:
@@ -82,13 +86,13 @@ def first_player() -> bool:
     :return: is_player_round.
     """
     is_player_round = bool(randint(0, 1))
-    
+
     if is_player_round:
         print("\n\nVous jouerez en premier\n")
     else:
         print("\n\nVotre adversaire jouera en premier\n")
     wait_for_user()
-    
+
     return is_player_round
 
 
@@ -101,7 +105,7 @@ def build_brd() -> tuple[list[list[int]], list[list[int]], list[list[int]], list
     brd_player = [[0 for _ in range(10)] for _ in range(10)]
     brd_pc_view = [[0 for _ in range(10)] for _ in range(10)]
     brd_player_view = [[0 for _ in range(10)] for _ in range(10)]
-    
+
     return brd_pc, brd_player, brd_pc_view, brd_player_view
 
 
@@ -124,11 +128,11 @@ def str_to_coordinates(coordinates_str: str) -> tuple[int, int] | int:
     :return: coordinates or error_code.
     """
     letters_place = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
-    
+
     # Intelligent recognition: (it will not extract a string if it already knows that it is not on the game board)
     if re.search(r"[A-J][0-9]{1,2}", coordinates_str):  #
         coordinates_str = re.search(r"[A-J][0-9]{1,2}", coordinates_str).group()
-    
+
     if re.search(r"^[A-Z][0-9]+$", coordinates_str):  # if the input format is valid.
         """
         index = number - 1
@@ -143,11 +147,11 @@ def str_to_coordinates(coordinates_str: str) -> tuple[int, int] | int:
             return 1
     else:
         return 0
-    
+
 
 def determine_orientation(first_coord, second_coord) -> int | None:
     """
-    
+
     :param first_coord:
     :param second_coord:
     :return:
@@ -158,7 +162,7 @@ def determine_orientation(first_coord, second_coord) -> int | None:
         return 0
     else:  # neither
         return None
-    
+
 
 def str_to_boat_coordinates(coordinates_str: str, brd_player: list[list[int]],
                             boats_player: dict[str: dict[tuple[int, int]: bool]])\
@@ -174,20 +178,20 @@ def str_to_boat_coordinates(coordinates_str: str, brd_player: list[list[int]],
     # intelligent recogniser:
     if re.search(r"[A-Z][0-9]+ [A-Z][0-9]+", coordinates_str):
         coordinates_str = re.search(r"[A-Z][0-9]+ [A-Z][0-9]+", coordinates_str).group()
-    
+
     if re.search(r"^[A-Z][0-9]+ [A-Z][0-9]+$", coordinates_str):  # if the input format is valid.
         limits = tuple(coordinates_str.split(" "))
-        
+
         if (limits[0][0] in letters_place.keys() and limits[1][0] in letters_place.keys() and
                 0 < int(limits[0][1:]) < 11 and 0 < int(limits[1][1:]) < 11):  # True if the boat is on the board.
             # we use letters_place because we checked, with the regex above, that the input format is respected.
             letter_a = letters_place[limits[0][0]]  # letter of the first set of coordinates.
             letter_b = letters_place[limits[1][0]]  # letter of the second set of coordinates.
-            
+
             # we use int() because we checked, with the regex above, that the input format is respected.
             number_a = int(limits[0][1:])  # number in the first set of coordinates.
             number_b = int(limits[1][1:])  # number in the second set of coordinates.
-            
+
             if letter_a == letter_b:  # letters are the same → vertical.
                 # Enables the start and end of the boat to be interchanged and readjustment due to the range() function.
                 """
@@ -206,11 +210,11 @@ def str_to_boat_coordinates(coordinates_str: str, brd_player: list[list[int]],
                 else:
                     start = (letter_a, number_a - 1)
                     end = (letter_b, number_b)
-                
+
                 size = end[1] - start[1]  # calculates the size of the boat
-                
+
                 return start, end, 1, size
-            
+
             elif number_a == number_b:  # numbers are the same → horizontal.
                 # Enables the start and end of the boat to be interchanged.
                 """
@@ -232,11 +236,11 @@ def str_to_boat_coordinates(coordinates_str: str, brd_player: list[list[int]],
                 else:
                     start = (letter_a, number_a - 1)
                     end = (letter_b + 1, number_b - 1)
-                
+
                 size = end[0] - start[0]  # calculates the size of the boat
                 print(start, end)
                 return start, end, 0, size
-            
+
             else:  # letters and numbers are different.
                 reset_boat_placement_player_screen(boats_player)
                 error(f"Général, le bateau ne peut pas être placé en diagonale: {coordinates_str} !")
@@ -267,7 +271,7 @@ def is_space_free(brd, start: tuple[int, int], end: tuple[int, int], orientation
     """
     allowed = True
     boats_obstructing_list = []
-    
+
     if orientation:  # 1 = True → Vertical
         for row in range(start[1], end[1]):
             if not brd[row][start[0]] == 0:
@@ -276,20 +280,20 @@ def is_space_free(brd, start: tuple[int, int], end: tuple[int, int], orientation
         for cell in range(start[0], end[0]):
             if not brd[start[1]][cell] == 0:
                 allowed = False
-    
+
     if not allowed:
         if orientation:
             virtual_coord = [(row, start[0]) for row in range(start[1], end[1])]
         else:
             virtual_coord = [(start[1], cell) for cell in range(start[0], end[0])]
-        
+
         for boat_name in boats_player:
             for coord in boats_player[boat_name].keys():
                 if coord in virtual_coord and boat_name not in boats_obstructing_list:
                     boats_obstructing_list.append(boat_name)
-    
+
     return allowed, boats_obstructing_list
-    
+
 
 def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict[str: dict[tuple[int, int]: bool]])\
         -> tuple[list[list[int]], dict[str: dict[tuple[int, int]: bool]], bool]:
@@ -303,16 +307,16 @@ def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict[s
     boats_size_list = {"porte-avion": 5, "croiseur": 4, "contre-torpilleur": 3, "sous-marin": 3, "torpilleur": 2}
     exiting = placed = False
     boat_size = boats_size_list[boat_name]
-    
+
     reset_boat_placement_player_screen(boats_player)
-    
+
     while not (exiting or placed):
         print(f"Inscrivez la première et la dernière coordonnée du {boat_name} ({boat_size} cases).",
               # Adapt the example to the boat selected:
               f"Par exemple: -> A1 A{boat_size}.", sep="\n")
         entry = user_input(f"-> ")
         entry = entry.upper()
-        
+
         if entry and entry != "EXIT":
             boat_infos = str_to_boat_coordinates(entry, brd_player, boats_player)
             if boat_infos:  # if the input format is valid
@@ -325,14 +329,14 @@ def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict[s
                             for row in range(start[1], end[1]):  # from start's number to end's number
                                 brd_player[row][cell] = 1
                                 boats_player[boat_name][(row, cell)] = False  # update coordinates of the boat
-                            
+
                             placed = True
                         else:  # 0 = False → Horizontal
                             row = start[1]
                             for cell in range(start[0], end[0]):  # from start's letter to end's letter
                                 brd_player[row][cell] = 1
                                 boats_player[boat_name][(row, cell)] = False  # update coordinates of the boat
-                            
+
                             placed = True
                     else:
                         reset_boat_placement_player_screen(boats_player)
@@ -342,7 +346,7 @@ def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict[s
                                 boat_names_format += f", le {boat}"
                             else:
                                 boat_names_format += f" et le {boat}"
-                        error(f"{boat_names_format} navigue{"nt" if len(boats_obstructing) > 1 else ""} déjà sur ces "
+                        error(f"{boat_names_format} navigue{'nt' if len(boats_obstructing) > 1 else ''} déjà sur ces "
                               "eaux... L'espace est pris !")
                 else:
                     reset_boat_placement_player_screen(boats_player)
@@ -353,7 +357,7 @@ def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict[s
         else:
             reset_boat_placement_player_screen(boats_player)
             error("Vous devez entrez une valeur !")
-    
+
     return brd_player, boats_player, placed
 
 
@@ -372,11 +376,12 @@ def delete_boat(brd_player: list[list[int]], boats_player: dict[str: dict[tuple[
     # boats_player[boat_name] = {}
     #
     # return brd_player, boats_player
-    """
-    Pour des raisons évidentes de développement de boat_placement_player, j'ai besoin de la fonction.
-    Mais je te laisse la faire à ta manière Enzo !!
-    """
 
+    for coordinates in boats_player[boat_name]:
+        brd_player[boats_player[boat_name]][coordinates] = 0
+
+    boats_player[boat_name] = {}
+    return brd_player, boats_player
 
 def boat_placement_player(brd_player: list[list[int]])\
         -> tuple[list[list[int]], dict[str: dict[tuple[int, int]: bool]]]:
@@ -407,7 +412,7 @@ def boat_placement_player(brd_player: list[list[int]])\
         4: "sous-marin",
         5: "torpilleur"
     }
-    
+
     reset_boat_placement_player_screen(boats_player)
 
     while not all(boats_status.values()):  # loops until all the boats are positioned
@@ -415,10 +420,10 @@ def boat_placement_player(brd_player: list[list[int]])\
         for i, name in enumerate(boats_status, 1):
             if boats_status[name]:
                 colour(Fore.GREEN)
-                print(f"\t● {i} -> {name}{" " * (22 - len(name))}({boats_size_list[name]} cases)")
+                print(f"\t● {i} -> {name}{' ' * (22 - len(name))}({boats_size_list[name]} cases)")
                 colour(default_color)
             else:
-                print(f"\t◯ {i} -> {name}{" " * (22 - len(name))}({boats_size_list[name]} cases)")
+                print(f"\t◯ {i} -> {name}{' ' * (22 - len(name))}({boats_size_list[name]} cases)")
         boat_number_entry = user_input("-> ")
         boat_number_entry = boat_number_entry.upper().replace(' ', '')
         if boat_number_entry.isnumeric():
@@ -442,11 +447,11 @@ def boat_placement_player(brd_player: list[list[int]])\
         else:
             reset_boat_placement_player_screen(boats_player)
             error("Vous devez saisir un numéro !")
-    
+
     wait_for_user()
     # new page
     clear()
-    
+
     # Ask the user if he/she want to replace a boat (While)
     keep_modifying = True
     while keep_modifying:
@@ -458,7 +463,7 @@ def boat_placement_player(brd_player: list[list[int]])\
             while not replaced:
                 print("Saisissez le numéro du bateau que vous voulez replacer (pour sortir, saisissez \'exit\'):")
                 for i, name in enumerate(boats_status, 1):
-                    print(f"\t{i} -> {name}{" " * (22 - len(name))}({boats_size_list[name]} cases)")
+                    print(f"\t{i} -> {name}{' ' * (22 - len(name))}({boats_size_list[name]} cases)")
                 replace_entry = user_input("-> ")
                 if replace_entry:  # not empty
                     # do things before
@@ -471,7 +476,7 @@ def boat_placement_player(brd_player: list[list[int]])\
         else:
             clear()
             error(f"Répondez à la question par \'Y\' (Oui) ou \'N\' (Non) uniquement: {want_replace} !")
-    
+
     return brd_player, boats_player
 
 
@@ -494,12 +499,12 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict[st
     i = 0
 
     print("L'adversaire positionne ses bateaux...")
-    
+
     while i < len(boats_list):
         size = boats_list[i]
         name = boats_name[i]
         orientation = randint(0, 1)
-        
+
         if orientation:  # vertical
             letter = randint(0, 9)
             first_number = randint(0, 9 - size)
@@ -512,7 +517,7 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict[st
                     brd_pc[letter][number] = 1
                     boats_pc[name][(letter, number)] = False
                 i += 1
-        
+
         else:  # horizontal
             number = randint(0, 9)
             first_letter = randint(0, 9 - size)
@@ -536,21 +541,21 @@ def normal_mode(level: int):
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
     brd_player, boats_player_dict = boat_placement_player(brd_player)
     brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
-    
+
     # Game loop
     running = True
     while running:
         if is_player_turn:  # player's round
             brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view)
             is_player_turn = False
-        
+
         else:  # computer's round
             brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
             is_player_turn = True
-        
+
         # Check to see if anyone has won and if so, stop the game.
         running = not win(brd_player, brd_pc)
-    
+
     # Tell the user, which one was the most precise.
     display_accuracy(brd_player, brd_pc)
 
@@ -560,21 +565,21 @@ def against_clock_mode(level: int):
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
     brd_player, boats_player_dict = boat_placement_player(brd_player)
     brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
-    
+
     # Game loop
     running = True
     while running:
         if is_player_turn:  # player's round
             brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view)
             is_player_turn = False
-        
+
         else:  # computer's round
             brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
             is_player_turn = True
-        
+
         # Check to see if anyone has won and if so, stop the game.
         running = not win(brd_player, brd_pc)
-    
+
     # Tell the user, which one was the most precise.
     display_accuracy(brd_player, brd_pc)
 
@@ -584,21 +589,21 @@ def accuracy_mode(level: int):
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
     brd_player, boats_player_dict = boat_placement_player(brd_player)
     brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
-    
+
     # Game loop
     running = True
     while running:
         if is_player_turn:  # player's round
             brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view)
             is_player_turn = False
-        
+
         else:  # computer's round
             brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
             is_player_turn = True
-        
+
         # Check to see if anyone has won and if so, stop the game.
         running = not win(brd_player, brd_pc)
-    
+
     # Tell the user, which one was the most precise.
     display_accuracy(brd_player, brd_pc)
 
@@ -608,28 +613,28 @@ def limited_mode(level: int):
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
     brd_player, boats_player_dict = boat_placement_player(brd_player)
     brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
-    
+
     # Game loop
     running = True
     while running:
         if is_player_turn:  # player's round
             brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view)
             is_player_turn = False
-        
+
         else:  # computer's round
             brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
             is_player_turn = True
-        
+
         # Check to see if anyone has won and if so, stop the game.
         running = not win(brd_player, brd_pc)
-    
+
     # Tell the user, which one was the most precise.
     display_accuracy(brd_player, brd_pc)
 
 
 def cheat_mode(level: int):
     """
-    
+
     :param level:
     :return:
     """
@@ -642,21 +647,21 @@ def cheat_mode(level: int):
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
     brd_player, boats_player_dict = boat_placement_player(brd_player)
     brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
-    
+
     # Game loop
     running = True
     while running:
         if is_player_turn:  # player's round
             brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view)
             is_player_turn = False
-        
+
         else:  # computer's round
             brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
             is_player_turn = True
-        
+
         # Check to see if anyone has won and if so, stop the game.
         running = not win(brd_player, brd_pc)
-    
+
     # Tell the user, which one was the most precise.
     display_accuracy(brd_player, brd_pc)
 
@@ -673,7 +678,7 @@ def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
 
 def is_boat_sunk(boat_dict: dict[tuple[int, int]: bool]) -> bool:
     """
-    
+
     :param boat_dict:
     :return:
     """
@@ -682,7 +687,7 @@ def is_boat_sunk(boat_dict: dict[tuple[int, int]: bool]) -> bool:
 
 def reset_player_round_screen(brd_player: list[list[int]], brd_player_view: list[list[int]]):
     """
-    
+
     :param brd_player: Player's game board.
     :param brd_player_view: Player's game board view.
     :return:
@@ -706,7 +711,7 @@ def player_turn(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player
     entry = ""
     allowed = False
     target = ()
-    
+
     while not allowed:
         print("Où voulez-vous tirez ? (Inscrivez les coordonnées de la case ciblée)")
         entry = user_input("-> ")
@@ -741,7 +746,7 @@ def player_turn(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player
         colour(water_color)
         print("Dans l'eau...")
     colour(default_color)
-    
+
     wait_for_user()
     return brd_pc, brd_player_view
 
@@ -757,7 +762,7 @@ def easy_level(brd_pc_view: list[list[int]]) -> tuple[int, int]:
 
 def value_in_matrix(matrix: list[list], value) -> list[tuple[int, int]]:
     """
-    
+
     :param matrix:
     :param value:
     :return:
@@ -767,7 +772,7 @@ def value_in_matrix(matrix: list[list], value) -> list[tuple[int, int]]:
         for j, cell in enumerate(row, 0):
             if cell == value:
                 value_places.append((i, j))
-    
+
     return value_places
 
 
@@ -786,7 +791,7 @@ def should_shoot(hit_coord: list[tuple[int, int]], brd_view: list[list[int]]) ->
                          (coord[0] + 1, coord[1]),
                          (coord[0], coord[1] - 1),
                          (coord[0], coord[1] + 1)]
-        
+
         for coord_shoot in virtual_shoot:
             if 0 <= coord_shoot[0] <= 9 and 0 <= coord_shoot[1] <= 9:
                 if brd_view[coord_shoot[0]][coord_shoot[1]] == 0:  # not already shot
@@ -802,18 +807,18 @@ def should_shoot(hit_coord: list[tuple[int, int]], brd_view: list[list[int]]) ->
             elif orientation == 0:  # 0 → Vertical.
                 virtual_shoot.append((coord[0] - 1, coord[1]))
                 virtual_shoot.append((coord[0] + 1, coord[1]))
-        
+
         for coord_shoot in virtual_shoot:
             if 0 <= coord_shoot[0] <= 9 and 0 <= coord_shoot[1] <= 9:
                 if brd_view[coord_shoot[0]][coord_shoot[1]] == 0:  # not already shot
                     too_shoot.append(coord_shoot)
-    
+
     return ic(too_shoot)
 
 
 def intermediate_level(brd_pc_view: list[list[int]]) -> tuple[int, int]:
     """
-    
+
     :param brd_pc_view:
     :return:
     """
@@ -840,7 +845,7 @@ def difficult_level() -> tuple[int, int]:
 def impossible_level(brd_pc_view: list[list[int]], boats_player_dict: dict[str: dict[tuple[int, int]: bool]])\
         -> tuple[int, int]:
     """
-    
+
     :param brd_pc_view:
     :param boats_player_dict:
     :return:
@@ -864,7 +869,6 @@ def impossible_level(brd_pc_view: list[list[int]], boats_player_dict: dict[str: 
     }
     """
     pass
-
 
 def pc_turn(brd_player: list[list[int]], brd_pc_view: list[list[int]],
             brd_player_view: list[list[int]], level: int) -> list[list[int]]:
@@ -900,7 +904,7 @@ def pc_turn(brd_player: list[list[int]], brd_pc_view: list[list[int]],
     display_brd(brd_player_view)
     display_brd(brd_player, is_view=False)
     print(f"L'adversaire tire en {letters_place[target[1]]}{target[0]+1}")
-    
+
     if is_hit(brd_player, target):
         colour(red_color)
         print("Touché...")
@@ -908,7 +912,7 @@ def pc_turn(brd_player: list[list[int]], brd_pc_view: list[list[int]],
         colour(water_color)
         print("Dans l'eau!")
     colour(default_color)
-    
+
     wait_for_user()
     return brd_player
 
@@ -940,7 +944,7 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]]) -> bool:
     return pc_won or player_won
 
 
-def accuracy(brd) -> int:
+def accuracy(brd) -> tuple[float, int]:
     """
     Calculates the accuracy of the player and the computer.
     :param brd:
@@ -948,13 +952,24 @@ def accuracy(brd) -> int:
     """
     # En fin de compte, accuracy retourne la précision (entre 0 et 1, car c'est un pourcentage).
     # C'est dans le fichier les fonctions de mode de jeu qu'on affichera lequel des deux a été le meilleur.
-    # enzo
-    pass
+    water_shots = 0
+    nice_shots = 0
+
+    for row in range(len(brd)):
+        for cell in brd[row]:
+            if cell == 1:
+                water_shots += 1
+            elif cell == 2 or 3 :
+                nice_shots += 1
+
+    total_shots = water_shots + nice_shots
+    accuracy = nice_shots / total_shots
+    return accuracy, total_shots
 
 
 def display_accuracy(brd_player, brd_pc) -> None:
     """
-    
+
     :param brd_player:
     :param brd_pc:
     :return:
