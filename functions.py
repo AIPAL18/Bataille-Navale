@@ -377,8 +377,9 @@ def delete_boat(brd_player: list[list[int]], boats_player: dict[str: dict[tuple[
     #
     # return brd_player, boats_player
 
-    for coordinates in boats_player[boat_name]:
-        brd_player[boats_player[boat_name]][coordinates] = 0
+    for coordinate in boats_player[boat_name].keys():
+        brd_player[coordinate[0]][coordinate[1]] = 0
+        print(brd_player[coordinate[0]])
 
     boats_player[boat_name] = {}
     return brd_player, boats_player
@@ -956,15 +957,16 @@ def accuracy(brd) -> tuple[float, int]:
     nice_shots = 0
 
     for row in range(len(brd)):
+        print(brd[row])
         for cell in brd[row]:
             if cell == 1:
                 water_shots += 1
-            elif cell == 2 or 3 :
+            elif cell > 1:
                 nice_shots += 1
 
     total_shots = water_shots + nice_shots
-    accuracy = nice_shots / total_shots
-    return accuracy, total_shots
+    result = nice_shots / total_shots
+    return round(result, 2), total_shots, water_shots, nice_shots
 
 
 def display_accuracy(brd_player, brd_pc) -> None:

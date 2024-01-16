@@ -169,6 +169,30 @@ for row_, coord in zip(odds, brd_coord):
     print()
 
 """
+
+"""
+def accuracy(brd) -> tuple[float, int]:
+    Calculates the accuracy of the player and the computer.
+    :param brd:
+    :return:
+
+    # En fin de compte, accuracy retourne la précision (entre 0 et 1, car c'est un pourcentage).
+    # C'est dans le fichier les fonctions de mode de jeu qu'on affichera lequel des deux a été le meilleur.
+    water_shots = 0
+    nice_shots = 0
+    
+    for row in range(len(brd)):
+        print(brd[row])
+        for cell in brd[row]:
+            if cell == 1:
+                water_shots += 1
+            elif cell > 1:
+                nice_shots += 1
+
+    total_shots = water_shots + nice_shots
+    result = nice_shots / total_shots
+    return round(result, 2), total_shots, water_shots, nice_shots
+"""
 """
 use -> https://docs.python.org/3/library/configparser.html
 from https://en.wikipedia.org/wiki/Box-drawing_character
@@ -260,4 +284,4 @@ boats_player_dict = {
     'torpilleur': {(7, 6): False, (7, 7): False}
 }
 
-print('result:', intermediate_level(brd_pc_view))
+print('result:', delete_boat(brd_player, boats_player_dict,"porte-avion"))

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from os import system
 from colorama import Fore, Back
 from icecream import ic
