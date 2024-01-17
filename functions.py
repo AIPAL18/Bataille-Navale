@@ -1,7 +1,7 @@
 from ui import *
 from random import randint, choice
 import re
-from time import sleep
+from time import sleep, time
 
 
 def select_mode() -> int:
@@ -316,9 +316,43 @@ def is_space_free(brd, start: tuple[int, int], end: tuple[int, int], orientation
                     boats_obstructing_list.append(boat_name)
     
     return allowed, boats_obstructing_list
-    
+
 
 def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict[str: dict[tuple[int, int]: bool]],
+               delete_before: bool = False) -> tuple[list[list[int]], dict[str: dict[tuple[int, int]: bool]], bool]:
+    """
+    Place one boat on the game board. It returns True if the boat has been placed successfully.
+    :param brd_player: Player's game board.
+    :param boat_name: Name of the boat.
+    :param boats_player: Dictionary storing the player's boats.
+    :param delete_before: If True, it deletes the boat before placing it.
+    :return: brd_player, boats_player, placed.
+    """
+    boats_size_list = {"porte-avion": 5, "croiseur": 4, "contre-torpilleur": 3, "sous-marin": 3, "torpilleur": 2}
+    exiting = placed = False
+    boat_size = boats_size_list[boat_name]
+
+    reset_boat_placement_player_screen(boats_player)
+
+    while not (exiting or placed):
+        print(f"Inscrivez la première et la dernière coordonnée du {boat_name} ({boat_size} cases).",
+              # Adapt the example to the boat selected:
+              f"Par exemple: -> A1 A{boat_size}.", sep="\n")
+        entry = user_input(f"-> ")
+        entry = entry.upper()
+
+        if entry:
+            if entry != "EXIT":
+                pass
+            else:
+                reset_boat_placement_player_screen(boats_player)
+                error("Vous devez entrez une valeur !")
+        else:
+            reset_boat_placement_player_screen(boats_player)
+            error("Vous devez entrez une valeur !")
+
+
+def place_boat_bis(brd_player: list[list[int]], boat_name: str, boats_player: dict[str: dict[tuple[int, int]: bool]],
                delete_before: bool = False) -> tuple[list[list[int]], dict[str: dict[tuple[int, int]: bool]], bool]:
     """
     Place one boat on the game board. It returns True if the boat has been placed successfully.
@@ -377,7 +411,7 @@ def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict[s
                                 boat_names_format += f", le {boat}"
                             else:
                                 boat_names_format += f" et le {boat}"
-                        error(f"{boat_names_format} navigue{"nt" if len(boats_obstructing) > 1 else ""} déjà sur ces "
+                        error(f"{boat_names_format} navigue{'nt' if len(boats_obstructing) > 1 else ''} déjà sur ces "
                               "eaux... L'espace est pris !")
                 else:
                     reset_boat_placement_player_screen(boats_player)
@@ -450,10 +484,10 @@ def boat_placement_player(brd_player: list[list[int]])\
         for i, name in enumerate(boats_status, 1):
             if boats_status[name]:  # already placed
                 colour(Fore.GREEN)
-                print(f"\t● {i} -> {name}{" " * (22 - len(name))}({boats_size_list[name]} cases)")
+                print(f"\t● {i} -> {name}{' ' * (22 - len(name))}({boats_size_list[name]} cases)")
                 colour(default_color)
             else:  # not placed yet
-                print(f"\t◯ {i} -> {name}{" " * (22 - len(name))}({boats_size_list[name]} cases)")
+                print(f"\t◯ {i} -> {name}{' ' * (22 - len(name))}({boats_size_list[name]} cases)")
         boat_number_entry = user_input("-> ")
         boat_number_entry = boat_number_entry.upper().replace(' ', '')
         
@@ -511,7 +545,7 @@ def boat_placement_player(brd_player: list[list[int]])\
             while not (exiting or replaced):
                 print("Saisissez le numéro du bateau que vous voulez replacer:")
                 for i, name in enumerate(boats_status, 1):
-                    print(f"\t{i} -> {name}{" " * (22 - len(name))}({boats_size_list[name]} cases)")
+                    print(f"\t{i} -> {name}{' ' * (22 - len(name))}({boats_size_list[name]} cases)")
                 boat_number_entry = user_input("-> ").upper().replace(' ', '')
                 if boat_number_entry:  # not empty
                     if boat_number_entry.isnumeric():
@@ -635,7 +669,9 @@ def against_clock_mode(level: int):
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
     brd_player, boats_player_dict = boat_placement_player(brd_player)
     brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
-    
+
+    user_input("Le jeu commence dès que vous presserez Entrer.")
+
     # Game loop
     running = True
     while running:
