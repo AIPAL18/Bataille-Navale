@@ -273,7 +273,7 @@ brd_pc_view = [[3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                [3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                [0, 0, 0, 0, 0, 0, 1, 0, 0, 3],
-               [0, 0, 0, 0, 0, 1, 3, 3, 0, 3],
+               [0, 0, 0, 0, 0, 1, 3, 0, 0, 3],
                [1, 0, 0, 3, 3, 3, 1, 0, 0, 3],
                [3, 3, 3, 0, 0, 0, 0, 0, 1, 3]]
 boats_player_dict = {
@@ -284,4 +284,18 @@ boats_player_dict = {
     'torpilleur': {(7, 6): False, (7, 7): False}
 }
 
-print('result:', delete_boat(brd_player, boats_player_dict,"porte-avion"))
+brd_player, boats_player_dict = delete_boat(brd_player, boats_player_dict, 'porte-avion')
+
+print(boats_player_dict)
+display_brd(brd_player)
+
+print('result:', intermediate_level(brd_pc_view))
+
+
+"""
+370 -> message d'erreur
+mettre str_boat_coordinates() dans place_boat()
+dev les modes (même normal)
+dev difficult_level
+"""
+
