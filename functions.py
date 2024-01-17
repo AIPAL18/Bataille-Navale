@@ -652,7 +652,7 @@ def normal_mode(level: int):
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
@@ -684,7 +684,7 @@ def against_clock_mode(level: int):
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
@@ -714,7 +714,7 @@ def accuracy_mode(level: int):
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
@@ -744,7 +744,7 @@ def limited_mode(level: int):
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
@@ -778,7 +778,7 @@ def cheat_mode(level: int):
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
@@ -987,27 +987,29 @@ def impossible_level(boats_dict: dict[str: dict[tuple[int, int]: bool]])\
 
 
 def pc_turn(brd_player: list[list[int]], brd_pc_view: list[list[int]],
-            brd_player_view: list[list[int]], level: int) -> list[list[int]]:
+            brd_player_view: list[list[int]], boat_player_dict: dict[str: dict[tuple[int, int]: bool]], level: int)\
+        -> list[list[int]]:
     """
     Makes the computer play.
     :param brd_player: Player's game board.
     :param brd_pc_view: Computer's game board view.
     :param brd_player_view: Player's game board view.
+    :param boat_player_dict: pass.
     :param level: int.
     :return: brd_player.
     """
     clear()
     letters_place = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J'}
-    target = (randint(0, 9), randint(0, 9))
+    target = ()
 
     if level == 0:
-        target = (randint(0, 9), randint(0, 9))
+        target = easy_level(brd_pc_view)
     elif level == 1:
-        pass
+        target = intermediate_level(brd_pc_view)
     elif level == 2:
-        pass
+        target = difficult_level()
     elif level == 3:
-        pass
+        target = impossible_level()
 
     if is_hit(brd_player, target):
         brd_player[target[0]][target[1]] = 3
