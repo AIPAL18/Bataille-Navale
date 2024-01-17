@@ -1,7 +1,3 @@
-from __future__ import annotations
-
-from typing import Tuple
-
 from ui import *
 from random import randint, choice
 import re
