@@ -299,3 +299,111 @@ mettre str_boat_coordinates() dans place_boat()
 dev les modes (même normal)
 dev difficult_level
 """
+def place_boat(brd_player: list[list[int]], boat_name: str, boats_player: dict[str: dict[tuple[int, int]: bool]],
+               delete_before: bool = False) -> tuple[list[list[int]], dict[str: dict[tuple[int, int]: bool]], bool]:
+    """
+    Place one boat on the game board. It returns True if the boat has been placed successfully.
+    :param brd_player: Player's game board.
+    :param boat_name: Name of the boat.
+    :param boats_player: Dictionary storing the player's boats.
+    :param delete_before: If True, it deletes the boat before placing it.
+    :return: brd_player, boats_player, placed.
+    """
+    boats_size_list = {"porte-avion": 5, "croiseur": 4, "contre-torpilleur": 3, "sous-marin": 3, "torpilleur": 2}
+    exiting = placed = False
+    boat_size = boats_size_list[boat_name]
+
+    reset_boat_placement_player_screen(boats_player)
+
+    while not (exiting or placed):
+        print(f"Inscrivez la première et la dernière coordonnée du {boat_name} ({boat_size} cases).",
+              # Adapt the example to the boat selected:
+              f"Par exemple: -> A1 A{boat_size}.", sep="\n")
+        coord_entry = user_input(f"-> ")
+        coord_entry = coord_entry.upper()
+
+        # Intelligent recognition: (it will not extract a string if it already knows that it is not on the game board)
+        if re.search(r"[A-J][0-9]{1,2} [A-J][0-9]{1,2}", coord_entry):
+            coord_entry = re.search(r"[A-J][0-9]{1,2} [A-J][0-9]{1,2}", coord_entry).group()
+
+        if coord_entry:
+            if coord_entry != "EXIT":
+                if re.search(r"^[A-Z][0-9]+ [A-Z][0-9]+$", coord_entry):
+                    coord_a, coord_b = coord_entry.split(' ')  # split the coordinates into two set of coordinates
+                    if (coord_a[0] in letters_place.keys() and coord_b[0] in letters_place.keys() and
+                            0 < int(coord_a[1:]) < 11 and 0 < int(
+                                coord_b[1:]) < 11):  # True if the boat is on the board.
+                        # we use letters_place because we checked, with the regex above, that the input format is respected.
+                        letter_a = letters_place[coord_a[0]]  # letter of the first set of coordinates.
+                        letter_b = letters_place[coord_b[0]]  # letter of the second set of coordinates.
+
+                        # we use int() because we checked, with the regex above, that the input format is respected.
+                        number_a = int(coord_a[1:])  # number in the first set of coordinates.
+                        number_b = int(coord_b[1:])  # number in the second set of coordinates.
+
+                        if letter_a == letter_b:  # letters are the same → vertical.
+                            # Enables the start and end of the boat to be interchanged and readjustment due to the range() function.
+                            """
+                            We will iterate in between number_b and number_a with the range() function.
+                            1 - reel number = index + 1
+                            So index = number_b - 1
+                            II - range(a, b-1) gives index + 1 - 1 = reel number
+                            So index = number_a
+
+                            Whereas index for letters is already calculated in the dict above.
+                            """
+                            print(letter_a)
+                            if number_a > number_b:
+                                start = (letter_b, number_b - 1)
+                                end = (letter_a, number_a)
+                            else:
+                                start = (letter_a, number_a - 1)
+                                end = (letter_b, number_b)
+
+                            size = end[1] - start[1]  # calculates the size of the boat
+
+                            return start, end, 1, size
+
+                        elif number_a == number_b:  # numbers are the same → horizontal.
+                            # Enables the start and end of the boat to be interchanged.
+                            """
+                            We will iterate in between letter_b and letter_a with the range() function.
+                            I - value of letter = place of letter - 1 (in the dict above)
+                            And place of letter = index + 1
+                            So index = place of letter - 1 = value of letter
+                            II - range(a, b-1) gives index + 1 - 1 = place of letter
+                            And index = place of letter
+                            But place of letter = value of letter + 1
+                            So index = value of letter + 1
+
+                            Whereas index for number = index + 1
+                            So index = number - 1
+                            """
+                            if letter_a > letter_b:
+                                start = (letter_b, number_b - 1)  # reel number = index+1 so index = number_b-1
+                                end = (letter_a + 1, number_a - 1)  # reel number = index+1 so index = number_a-1
+                            else:
+                                start = (letter_a, number_a - 1)
+                                end = (letter_b + 1, number_b - 1)
+
+                            size = end[0] - start[0]  # calculates the size of the boat
+                            print(start, end)
+                            return start, end, 0, size
+
+                        else:  # letters and numbers are different.
+                            reset_boat_placement_player_screen(boats_player)
+                            error(f"Général, le bateau ne peut pas être placé en diagonale: {coordinates_str} !")
+                            return False
+                    else:  # boat isn't on the game board.
+                        reset_boat_placement_player_screen(boats_player)
+                        error(f"Le bateau doit être placé sur la mer (de A1 à J10): {coordinates_str} !")
+                        return False
+                else:
+                    reset_boat_placement_player_screen(boats_player)
+                    error("invalid input format")
+            else:
+                reset_boat_placement_player_screen(boats_player)
+                error("Vous devez entrez une valeur !")
+        else:
+            reset_boat_placement_player_screen(boats_player)
+            error("Vous devez entrez une valeur !")
