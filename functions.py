@@ -653,7 +653,7 @@ def normal_mode(level: int):
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
@@ -685,7 +685,7 @@ def against_clock_mode(level: int):
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
@@ -715,7 +715,7 @@ def accuracy_mode(level: int):
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
@@ -745,7 +745,7 @@ def limited_mode(level: int):
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
@@ -779,7 +779,7 @@ def cheat_mode(level: int):
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, level)
+            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
@@ -971,57 +971,48 @@ def difficult_level() -> tuple[int, int]:
     """
 
 
-def impossible_level(brd_pc_view: list[list[int]], boats_player_dict: dict[str: dict[tuple[int, int]: bool]])\
+def impossible_level(boats_dict: dict[str: dict[tuple[int, int]: bool]])\
         -> tuple[int, int]:
     """
-
-    :param brd_pc_view:
-    :param boats_player_dict:
+    Makes computer shot on the coordinates of player bot.
+    :param boats_dict:
     :return:
     """
-    """
-    Enzo.
-    Ne vise que sur les bateaux de l'adversaire. (attention, il faut rester logique, la fonction ne s'attaque qu'à un
-    bateau à la fois et pas deux fois la même case !)
-    Attention !! La fonction est utilisée pour le bot et le pc, donc il ne faut rien afficher !!!!
-    Petits rappels:
-    
-    view -> 0: vide, 1: dans l’eau, 2: touché, 3: coulé
-    
-    # ici les bateaux n'ont pas été attaqués
-    boats_player_dict = {
-        'porte-avion': {(0, 0): False, (1, 0): False, (2, 0): False, (3, 0): False, (4, 0): False},
-        'croiseur': {(6, 9): False, (7, 9): False, (8, 9): False, (9, 9): False},
-        'contre-torpilleur': {(8, 3): False, (8, 4): False, (8, 5): False},
-        'sous-marin': {(9, 0): False, (9, 1): False, (9, 2): False},
-        'torpilleur': {(7, 6): False, (7, 7): False}
-    }
-    """
-    pass
+    target = ()
+
+    for boat in boats_dict:
+        for boats_coordinates in boats_dict[boat]:
+            if boats_dict[boat][boats_coordinates] == False: # verify if the coordinate is shot
+                if not target:  # if empty
+                    target = boats_coordinates
+
+    return target
 
 
 def pc_turn(brd_player: list[list[int]], brd_pc_view: list[list[int]],
-            brd_player_view: list[list[int]], level: int) -> list[list[int]]:
+            brd_player_view: list[list[int]], boat_player_dict: dict[str: dict[tuple[int, int]: bool]], level: int)\
+        -> list[list[int]]:
     """
     Makes the computer play.
     :param brd_player: Player's game board.
     :param brd_pc_view: Computer's game board view.
     :param brd_player_view: Player's game board view.
+    :param boat_player_dict: pass.
     :param level: int.
     :return: brd_player.
     """
     clear()
     letters_place = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J'}
-    target = (randint(0, 9), randint(0, 9))
+    target = ()
 
     if level == 0:
-        target = (randint(0, 9), randint(0, 9))
+        target = easy_level(brd_pc_view)
     elif level == 1:
-        pass
+        target = intermediate_level(brd_pc_view)
     elif level == 2:
-        pass
+        target = difficult_level()
     elif level == 3:
-        pass
+        target = impossible_level()
 
     if is_hit(brd_player, target):
         brd_player[target[0]][target[1]] = 3
