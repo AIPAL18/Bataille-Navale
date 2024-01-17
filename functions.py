@@ -451,6 +451,7 @@ def delete_boat(brd_player: list[list[int]], boats_player: dict[str: dict[tuple[
     boats_player[boat_name] = {}
     return brd_player, boats_player
 
+
 def boat_placement_player(brd_player: list[list[int]])\
         -> tuple[list[list[int]], dict[str: dict[tuple[int, int]: bool]]]:
     """
@@ -798,15 +799,17 @@ def is_hit(brd: list[list[int]], target: tuple[int, int]) -> bool:
     return brd[target[0]][target[1]] == 1 or brd[target[0]][target[1]] == 3
 
 
-def boats_sunk(boats_dict: dict[str: dict[tuple[int, int]: bool]]) -> list[str]:
-    """
-    :return:
-    """
-    boat_name = []
-    for boat in boats_dict:
-        if all(boats_dict[boat].values()):  # if 'all values in boats_dict[boat].values() are True'
-            boat_name.append(boat)
-    return boat_name
+def boats_sunk(brd: list[list[int]], boats_dict: dict[str: dict[tuple[int, int]: bool]], is_view: bool = False)\
+        -> list[list[int]]:
+    for boat_name in boats_dict:
+        if all(boats_dict[boat_name].values()):  # if the boat is sunk
+            for coord, hit in boats_dict[boat_name].items():
+                if is_view:
+                    brd[coord[0]][coord[1]] = 3  # sunk the boat on the brd
+                else:
+                    brd[coord[0]][coord[1]] = 4  # sunk the boat on the brd
+
+    return brd
 
 
 def reset_player_round_screen(brd_player: list[list[int]], brd_player_view: list[list[int]]):
@@ -937,7 +940,7 @@ def should_shoot(hit_coord: list[tuple[int, int]], brd_view: list[list[int]]) ->
                 if brd_view[coord_shoot[0]][coord_shoot[1]] == 0:  # not already shot
                     too_shoot.append(coord_shoot)
 
-    return ic(too_shoot)
+    return too_shoot
 
 
 def intermediate_level(brd_pc_view: list[list[int]]) -> tuple[int, int]:

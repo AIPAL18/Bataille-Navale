@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from os import system
 from colorama import Fore, Back
 from icecream import ic
@@ -126,7 +124,7 @@ def display_brd_id(boats_player: dict[str: dict[tuple[int, int]: bool]]) -> None
     print()  # return to line
 
 
-def display_brd(brd: list[list[bool | None | int]], is_view: bool = True) -> None:
+def display_brd(brd: list[list[int]], is_view: bool = True) -> None:
     """
     Displays a game board in the console.
     :param brd: Game board view or game board.
