@@ -620,22 +620,27 @@ def against_clock_mode(level: int):
 
     user_input("Le jeu commence dès que vous presserez Entrer.")
 
+    end_time = time() + 1200  # 1200 seconds = 20 minutes
+
     # Game loop
     running = True
     while running:
-        if is_player_turn:  # player's round
-            brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view, boats_pc_dict)
-            is_player_turn = False
+        if time() < end_time:  # there is still time to play
+            if is_player_turn:  # player's round
+                brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view, boats_pc_dict)
+                is_player_turn = False
 
-        else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
-            is_player_turn = True
+            else:  # computer's round
+                brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
+                is_player_turn = True
 
-        # Check to see if anyone has won and if so, stop the game.
-        running = not win(brd_player, brd_pc)
+            # Check to see if anyone has won and if so, stop the game.
+            running = not win(brd_player, brd_pc)
 
-    # Tell the user, which one was the most precise.
-    # display_accuracy(brd_player, brd_pc)
+        else:
+            clear()
+            error("Vous avez épuisé votre temps... ")
+            running = False
 
 
 def accuracy_mode(level: int):
@@ -662,10 +667,8 @@ def accuracy_mode(level: int):
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
-        running = not win(brd_player, brd_pc)
-
-    # Tell the user, which one was the most precise.
-    # display_accuracy(brd_player, brd_pc)
+        if win(brd_player, brd_pc):
+            running = not win(brd_player, brd_pc)
 
 
 def limited_mode(level: int):
@@ -763,14 +766,12 @@ def boats_sunk(brd: list[list[int]], boats_dict: dict[str: dict[tuple[int, int]:
     """
     # TODO réparer la fonction boats_sunk
     name_sunk = ""
-    sunk_first_time = False
     
     for boat_name in boats_dict:
         # if the boat is sunk for the first time
         if (all(boats_dict[boat_name].values()) and
                 ((is_view and list(boats_dict[boat_name].keys())[0] != 3) or
                  (not is_view and list(boats_dict[boat_name].keys())[0] != 4))):
-            sunk_first_time = True
             name_sunk = boat_name
             for coord, hit in boats_dict[boat_name].items():
                 if is_view:
