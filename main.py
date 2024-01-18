@@ -61,6 +61,8 @@ while playing:
         limited_mode(level)
 
     # Asks the user if he wants to play again.
+    wait_for_user()
+    clear()
     playing = will_replay()
 
 # Resets the colours of the command prompt.

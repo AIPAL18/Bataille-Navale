@@ -193,6 +193,7 @@ def clean() -> None:
     """
     Resets the colours of the command prompt.
     """
+    clear(False)
     colour(Fore.RESET, Back.RESET)
 
 

@@ -600,10 +600,8 @@ def normal_mode(level: int):
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
-        running = not win(brd_player, brd_pc)
-
-    # Tell the user, which one was the most precise.
-    # display_accuracy(brd_player, brd_pc)
+        if win(brd_player, brd_pc):
+            running = False
 
 
 def against_clock_mode(level: int):
@@ -618,28 +616,32 @@ def against_clock_mode(level: int):
     brd_player, boats_player_dict = boat_placement_player(brd_player)
     brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
 
-    user_input("Le jeu commence dès que vous presserez Entrer.")
+    clear()
+    user_input("Le jeu commence dès que vous presserez Entrer:")
 
-    end_time = time() + 1200  # 1200 seconds = 20 minutes
+    end_time = time() + 120  # 1200 seconds = 20 minutes
+    # unfortunately, we cannot display the remaining time
 
     # Game loop
     running = True
     while running:
-        if time() < end_time:  # there is still time to play
+        if time() < end_time:  # if the player still has time to play
             if is_player_turn:  # player's round
                 brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view, boats_pc_dict)
                 is_player_turn = False
 
             else:  # computer's round
-                brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
+                brd_player, brd_pc_view = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
                 is_player_turn = True
-
-            # Check to see if anyone has won and if so, stop the game.
-            running = not win(brd_player, brd_pc)
-
         else:
             clear()
-            error("Vous avez épuisé votre temps... ")
+            colour(red_color)
+            print("Vous avez épuisé votre temps... ")
+            colour(default_color)
+            running = False
+        
+        # Check to see if anyone has won and if so, stop the game.
+        if win(brd_player, brd_pc):
             running = False
 
 
@@ -667,8 +669,17 @@ def accuracy_mode(level: int):
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
-        if win(brd_player, brd_pc):
-            running = not win(brd_player, brd_pc)
+        won = win(brd_player, brd_pc, display=False)
+        player_accuracy = accuracy(brd_player_view)
+        if player_accuracy >= .35 and won:
+            win(brd_player, brd_pc)
+        elif won:
+            clear()
+            colour(red_color)
+            print(f"Vous avez perdu car votre précision est de {accuracy(brd_player_view) * 10}% ! (> 35%)")
+            colour(default_color)
+        
+        running = not won
 
 
 def limited_mode(level: int):
@@ -684,8 +695,8 @@ def limited_mode(level: int):
     brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
 
     # Game loop
-    running = True
-    while running:
+    won = False
+    for _ in range(35):
         if is_player_turn:  # player's round
             brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view, boats_pc_dict)
             is_player_turn = False
@@ -695,10 +706,14 @@ def limited_mode(level: int):
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
-        running = not win(brd_player, brd_pc)
-
-    # Tell the user, which one was the most precise.
-    # display_accuracy(brd_player, brd_pc)
+        if win(brd_player, brd_pc):
+            won = True
+    
+    if not won:
+        clear()
+        colour(red_color)
+        print("Vous avez perdu ! 35 tours sont passés sans que vous ne gagniez.")
+        colour(default_color)
 
 
 def cheat_mode(level: int):
@@ -706,11 +721,6 @@ def cheat_mode(level: int):
 
     :param level:
     :return:
-    """
-    """
-    Elie.
-    La base de jeu est la même, cependant, au lieu de laisser le joueur tirer comme bon lui semble avec player_turn(),
-    on choisit nous-même (avec impossible_level()). Ne pas oublier de print les même infos que pour player_turn().
     """
     is_player_turn = first_player()  # True if the player start playing
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
@@ -721,18 +731,16 @@ def cheat_mode(level: int):
     running = True
     while running:
         if is_player_turn:  # player's round
-            brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view, boats_pc_dict)
+            brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view, boats_pc_dict, True)
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
+            brd_player, brd_pc_view = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
-        running = not win(brd_player, brd_pc)
-
-    # Tell the user, which one was the most precise.
-    # display_accuracy(brd_player, brd_pc)
+        if win(brd_player, brd_pc):
+            running = False
 
 
 def is_hit(brd: list[list[int]], boat_dict: dict[str: dict[tuple[int, int]: bool]], target: tuple[int, int])\
@@ -755,6 +763,22 @@ def is_hit(brd: list[list[int]], boat_dict: dict[str: dict[tuple[int, int]: bool
     return boat_dict, hit
 
 
+def is_new_sunk(brd: list[list[int]], coordinates: list[tuple[int, int]], is_view: bool) -> bool:
+    """(is_view and brd[list(boat.keys())[0]] == 2) or \
+    (not is_view and brd[list(boat.keys())[0]] == 3)"""
+    is_new = True
+    
+    for coord in coordinates:
+        if is_view:
+            if brd[coord[0]][coord[1]] != 2:  # hit
+                is_new = False
+        else:
+            if brd[coord[0]][coord[1]] != 3:  # hit
+                is_new = False
+        
+    return is_new
+
+
 def boats_sunk(brd: list[list[int]], boats_dict: dict[str: dict[tuple[int, int]: bool]], is_view: bool = False)\
         -> tuple[list[list[int]], str]:
     """
@@ -762,22 +786,20 @@ def boats_sunk(brd: list[list[int]], boats_dict: dict[str: dict[tuple[int, int]:
     :param brd:
     :param boats_dict:
     :param is_view:
-    :return: brd
+    :return: brd, boat name
     """
-    # TODO réparer la fonction boats_sunk
     name_sunk = ""
     
-    for boat_name in boats_dict:
+    for boat_name, boat in boats_dict.items():
         # if the boat is sunk for the first time
-        if (all(boats_dict[boat_name].values()) and
-                ((is_view and list(boats_dict[boat_name].keys())[0] != 3) or
-                 (not is_view and list(boats_dict[boat_name].keys())[0] != 4))):
-            name_sunk = boat_name
-            for coord, hit in boats_dict[boat_name].items():
-                if is_view:
-                    brd[coord[0]][coord[1]] = 3  # sunk the boat on the brd
-                else:
-                    brd[coord[0]][coord[1]] = 4  # sunk the boat on the brd
+        if all(boat.values()):
+            if is_new_sunk(brd, list(boat.keys()), is_view):
+                name_sunk = boat_name
+                for coord, hit in boats_dict[boat_name].items():
+                    if is_view:
+                        brd[coord[0]][coord[1]] = 3  # sunk the boat on the brd
+                    else:
+                        brd[coord[0]][coord[1]] = 4  # sunk the boat on the brd
     
     return brd, name_sunk
 
@@ -796,34 +818,41 @@ def reset_player_round_screen(brd_player: list[list[int]], brd_player_view: list
 
 
 def player_turn(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player_view: list[list[int]],
-                boats_pc_dict: dict[str: dict[tuple[int, int]: bool]]) -> tuple[list[list[int]], list[list[int]]]:
+                boats_pc_dict: dict[str: dict[tuple[int, int]: bool]], cheat: bool = False)\
+        -> tuple[list[list[int]], list[list[int]]]:
     """
     Makes the user play.
     :param brd_pc: Computer's game board.
     :param brd_player: Player's game board.
     :param brd_player_view: Player's game board view.
     :param boats_pc_dict:
+    :param cheat:
     :return: brd_pc, brd_player_view.
     """
     reset_player_round_screen(brd_player, brd_player_view)
+    letter_place = {0: "A", 1: "B", 2: "C", 3: "D", 4: "E", 5: "F", 6: "G", 7: "H", 8: "I", 9: "J"}
     entry = ""
     allowed = False
     target = ()
-
-    while not allowed:
-        print("Où voulez-vous tirez ? (Inscrivez les coordonnées de la case ciblée)")
-        entry = user_input("-> ")
-        result = str_to_coordinate(entry)
-        if type(result) is tuple:
-            target = result
-            allowed = True
-        elif result == 0:
-            reset_player_round_screen(brd_player, brd_player_view)
-            error("Le format n'est pas bon: inscrivez les coordonnées de la cible avec la lettre de la colonne et le "
-                  "numéro de la ligne. Par exemple: -> A1.")
-        elif result == 1:
-            reset_player_round_screen(brd_player, brd_player_view)
-            error("Vous devez tirer sur le plateau (de A1 à J10) !")
+    
+    if cheat:
+        target = impossible_level(boats_pc_dict)
+        entry = letter_place[target[1]] + str(target[0] + 1)
+    else:
+        while not allowed:
+            print("Où voulez-vous tirez ? (Inscrivez les coordonnées de la case ciblée)")
+            entry = user_input("-> ")
+            result = str_to_coordinate(entry)
+            if type(result) is tuple:
+                target = result
+                allowed = True
+            elif result == 0:
+                reset_player_round_screen(brd_player, brd_player_view)
+                error("Le format n'est pas bon: inscrivez les coordonnées de la cible avec la lettre de la colonne et "
+                      "le numéro de la ligne. Par exemple: -> A1.")
+            elif result == 1:
+                reset_player_round_screen(brd_player, brd_player_view)
+                error("Vous devez tirer sur le plateau (de A1 à J10) !")
     
     boats_pc_dict, hit = is_hit(brd_pc, boats_pc_dict, target)
     
@@ -1065,11 +1094,12 @@ def pc_turn(brd_player: list[list[int]], brd_pc_view: list[list[int]],
     return brd_player, brd_pc_view
 
 
-def win(brd_player: list[list[int]], brd_pc: list[list[int]]) -> bool:
+def win(brd_player: list[list[int]], brd_pc: list[list[int]], display: bool = True) -> bool:
     """
     Returns True and announce the winner if there's a winner, which will stop the game.
     :param brd_player: Player's game board.
     :param brd_pc: Computer's game board.
+    :param display: print ?
     :return: True if someone won.
     """
     pc_won = True
@@ -1084,22 +1114,23 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]]) -> bool:
             if cell == 1:
                 player_won = False
 
-    if pc_won:  # Shame on the team (WE lost)
+    if display and pc_won:  # Shame on the team (WE lost)
+        clear()
         print("MAYDAY, MAYDAY, MAYDAY! Tous nos navires sont en train de couler Général! Nous avons perdu...")
-    elif player_won:  # Glory on the leader (YOU won)
+    elif display and player_won:  # Glory on the leader (YOU won)
+        clear()
         print("Bravo Général! Vous avez gagné !")
 
     return pc_won or player_won
 
 
-def accuracy(brd_view) -> float:
+def accuracy(brd_view: list[list[int]]) -> float:
     """
     Calculates the accuracy of the player and the computer.
     :param brd_view: list[list[int]]
     :return: float
     """
-    water_shots = 0
-    success_shots = 0
+    water_shots = success_shots = result = 0
 
     for row in range(len(brd_view)):
         print(brd_view[row])
@@ -1110,7 +1141,9 @@ def accuracy(brd_view) -> float:
                 success_shots += 1
 
     total_shots = water_shots + success_shots
-    result = success_shots / total_shots
+    if total_shots > 0:
+        result = success_shots / total_shots
+    
     return round(result, 2)
 
 
