@@ -989,8 +989,8 @@ def impossible_level(boats_dict: dict[str: dict[tuple[int, int]: bool]])\
         -> tuple[int, int]:
     """
     Makes computer shot on the coordinates of player bot.
-    :param boats_dict:
-    :return:
+    :param boats_dict: dict[str: dict[tuple[int, int]: bool]]
+    :return: tuple[int, int]
     """
     target = ()
     
@@ -1095,8 +1095,8 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]]) -> bool:
 def accuracy(brd_view) -> float:
     """
     Calculates the accuracy of the player and the computer.
-    :param brd_view:
-    :return:
+    :param brd_view: list[list[int]]
+    :return: float
     """
     water_shots = 0
     success_shots = 0
