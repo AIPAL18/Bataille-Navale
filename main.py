@@ -66,4 +66,4 @@ while playing:
     playing = will_replay()
 
 # Resets the colours of the command prompt.
-clean()
+clean_to_exit()

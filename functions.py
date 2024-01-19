@@ -157,7 +157,7 @@ def against_clock_mode(level: int):
             clear()
             colour(red_color)
             print("Vous avez épuisé votre temps... ")
-            colour(default_color)
+            colour(default_colour)
             running = False
         
         # Check to see if anyone has won and if so, stop the game.
@@ -197,7 +197,7 @@ def accuracy_mode(level: int):
             clear()
             colour(red_color)
             print(f"Vous avez perdu car votre précision est de {accuracy(brd_player_view) * 10}% ! (> 35%)")
-            colour(default_color)
+            colour(default_colour)
         
         running = not won
 
@@ -233,7 +233,7 @@ def limited_mode(level: int):
         clear()
         colour(red_color)
         print("Vous avez perdu ! 35 tours sont passés sans que vous ne gagniez.")
-        colour(default_color)
+        colour(default_colour)
 
 
 def cheat_mode(level: int):
@@ -330,7 +330,7 @@ def boat_placement_player(brd_player: list[list[int]])\
             if boats_status[name]:  # already placed
                 colour(Fore.GREEN)
                 print(f"\t● {i} -> {name}{' ' * (22 - len(name))}({boats_size_list[name]} cases)")
-                colour(default_color)
+                colour(default_colour)
             else:  # not placed yet
                 print(f"\t◯ {i} -> {name}{' ' * (22 - len(name))}({boats_size_list[name]} cases)")
         boat_number_entry = user_input("-> ")
@@ -376,7 +376,7 @@ def boat_placement_player(brd_player: list[list[int]])\
             reset_boat_placement_player_screen(boats_player)
             error("Vous devez saisir une valeur !")
     
-    reset_boat_placement_player_screen(boats_player)
+    reset_boat_placement_player_screen(boats_player, replacing=True)
 
     # Ask the user if he/she want to replace a boat (While)
     keep_modifying = True
@@ -396,17 +396,17 @@ def boat_placement_player(brd_player: list[list[int]])\
                         if 1 <= boat_number <= 5:
                             boat_name = number_to_boat[boat_number]
                             brd_player, boats_player, replaced = place_boat(brd_player, boat_name, boats_player, True)
-                            reset_boat_placement_player_screen(boats_player)
+                            reset_boat_placement_player_screen(boats_player, replacing=True)
                         else:
-                            reset_boat_placement_player_screen(boats_player)
+                            reset_boat_placement_player_screen(boats_player, replacing=True)
                             error(f"Le numéro {boat_number} ne correspond pas à un bateau !")
                     else:
-                        reset_boat_placement_player_screen(boats_player)
+                        reset_boat_placement_player_screen(boats_player, replacing=True)
                         error("Vous devez saisir un numéro !")
                 elif boat_number_entry == "EXIT":
                     exiting = True
                 else:
-                    reset_boat_placement_player_screen(boats_player)
+                    reset_boat_placement_player_screen(boats_player, replacing=True)
                     error("Empty")
         elif 'N' == want_replace:
             keep_modifying = False
@@ -485,7 +485,7 @@ def player_turn(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player
     :param cheat:
     :return: brd_pc, brd_player_view.
     """
-    reset_player_round_screen(brd_player, brd_player_view)
+    reset_player_turn_screen(brd_player, brd_player_view)
     letter_place = {0: "A", 1: "B", 2: "C", 3: "D", 4: "E", 5: "F", 6: "G", 7: "H", 8: "I", 9: "J"}
     entry = ""
     allowed = False
@@ -503,11 +503,11 @@ def player_turn(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player
                 target = result
                 allowed = True
             elif result == 0:
-                reset_player_round_screen(brd_player, brd_player_view)
+                reset_player_turn_screen(brd_player, brd_player_view)
                 error("Le format n'est pas bon: inscrivez les coordonnées de la cible avec la lettre de la colonne et "
                       "le numéro de la ligne. Par exemple: -> A1.")
             elif result == 1:
-                reset_player_round_screen(brd_player, brd_player_view)
+                reset_player_turn_screen(brd_player, brd_player_view)
                 error("Vous devez tirer sur le plateau (de A1 à J10) !")
     
     boats_pc_dict, hit = is_hit(brd_pc, boats_pc_dict, target)
@@ -536,7 +536,7 @@ def player_turn(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player
     else:
         colour(water_color)
         print("Dans l'eau...")
-    colour(default_color)
+    colour(default_colour)
 
     wait_for_user()
     return brd_pc, brd_player_view
@@ -593,7 +593,7 @@ def pc_turn(brd_player: list[list[int]], brd_pc_view: list[list[int]],
     else:
         colour(water_color)
         print("Dans l'eau!")
-    colour(default_color)
+    colour(default_colour)
 
     wait_for_user()
     return brd_player, brd_pc_view
