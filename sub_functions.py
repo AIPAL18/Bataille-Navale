@@ -382,7 +382,7 @@ def should_shoot(hit_coord: list[tuple[int, int]], brd_view: list[list[int]]) ->
 
 def intermediate_level(brd_pc_view: list[list[int]]) -> tuple[int, int]:
     """
-    Computes the coordinates that the computer must shoot.
+    Computes the coordinates that the computer must shoot with a bit of precision.
     :param brd_pc_view: Computer's game board view.
     :return: target.
     """
@@ -400,14 +400,15 @@ def intermediate_level(brd_pc_view: list[list[int]]) -> tuple[int, int]:
 
 def difficult_level(boat_player_dict: dict[str: dict[tuple[int, int]: bool]]) -> tuple[int, int]:
     """
-    Pareil que "intermediate_level". Sauf quand il faut tirer au pif, la fonction utilise "compute_odds3".
-    :return:
+    Computes the coordinates that the computer must shoot with precision.
+    :return: target.
     """
     # The values are saved in variables for reasons of clarity and ease of access to readjust parameters if necessary.
     empty_value = 1
-    second_tier = 30
+    second_tier = 15
     full_tier = 100
-    boats_coordinates = []
+    boats_coordinates = []  # store the coordinates of each boat (if it is not already hit).
+    # A one-dimensional matrix storing the coord for each cell on a game board.
     brd_coord = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9),
                  (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9),
                  (2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9),
@@ -424,10 +425,10 @@ def difficult_level(boat_player_dict: dict[str: dict[tuple[int, int]: bool]]) ->
             if not hit:
                 boats_coordinates.append(coord)  # fills boats_coordinates with the coordinates of the player's boats.
     
-    odds = [empty_value for _ in range(100)]
+    odds = [empty_value for _ in range(100)]  # blank matrix
     for x, y in boats_coordinates:
-        for i in range(10):
-            for j in range(10):
+        for i in range(10):  # simulates the index of the row of a game board.
+            for j in range(10):  # simulates the index of the cell of a game board.
                 """
                 We have decided to represent a two-dimensional matrix by a one-dimensional matrix instead of using a
                 flatten function. This is the reason why we calculate x * 10 + j.
@@ -446,15 +447,15 @@ def difficult_level(boat_player_dict: dict[str: dict[tuple[int, int]: bool]]) ->
 def impossible_level(boats_dict: dict[str: dict[tuple[int, int]: bool]])\
         -> tuple[int, int]:
     """
-    Makes computer shot on the coordinates of player bot.
-    :param boats_dict: dict[str: dict[tuple[int, int]: bool]]
-    :return: tuple[int, int]
+    Computes the coordinates that the computer must shoot and hit the boat each time.
+    :param boats_dict: Dictionary storing the player's boats.
+    :return: target.
     """
     target = ()
     
     for boat_name in boats_dict:
         for boats_coordinates, shot in boats_dict[boat_name].items():
-            if not (shot or target):
+            if not (shot or target):  # if the target is not already set and if the cell has not already been hit.
                 target = boats_coordinates
 
     return target

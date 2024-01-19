@@ -5,7 +5,8 @@ from random import randint
 
 def select_mode() -> int:
     """
-    Returns the level of difficulty chosen by the user.
+    Returns the game mode chosen by the user.
+    :return: mode.
     """
     clear()
     mode = 0
@@ -70,6 +71,7 @@ def select_mode() -> int:
 def select_level() -> int:
     """
     Returns the level of difficulty chosen by the user.
+    :return: level.
     """
     level = 0
     allowed = False
@@ -97,11 +99,10 @@ def select_level() -> int:
     return level
 
 
-def normal_mode(level: int):
+def normal_mode(level: int) -> None:
     """
-    Elie -> accuracy to tell !!
-    :param level:
-    :return:
+    The function handle running the game in Normal mode.
+    :param level: Computer's level chosen by the user.
     """
     is_player_turn = first_player()  # True if the player start playing
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
@@ -124,12 +125,10 @@ def normal_mode(level: int):
             running = False
 
 
-def against_clock_mode(level: int):
+def against_clock_mode(level: int) -> None:
     """
-    
-    Elie.
-    :param level:
-    :return:
+    The function handle running the game in Against The Clock mode.
+    :param level: Computer's level chosen by the user.
     """
     is_player_turn = first_player()  # True if the player start playing
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
@@ -165,12 +164,10 @@ def against_clock_mode(level: int):
             running = False
 
 
-def accuracy_mode(level: int):
+def accuracy_mode(level: int) -> None:
     """
-    
-    Elie.
-    :param level:
-    :return:
+    The function handle running the game in Accuracy mode.
+    :param level: Computer's level chosen by the user.
     """
     is_player_turn = first_player()  # True if the player start playing
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
@@ -202,12 +199,10 @@ def accuracy_mode(level: int):
         running = not won
 
 
-def limited_mode(level: int):
+def limited_mode(level: int) -> None:
     """
-    
-    Elie.
-    :param level:
-    :return:
+    The function handle running the game in Limited mode.
+    :param level: Computer's level chosen by the user.
     """
     is_player_turn = first_player()  # True if the player start playing
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
@@ -236,11 +231,10 @@ def limited_mode(level: int):
         colour(default_colour)
 
 
-def cheat_mode(level: int):
+def cheat_mode(level: int) -> None:
     """
-
-    :param level:
-    :return:
+    The function handle running the game in "Normal" mode 😅.
+    :param level: Computer's level chosen by the user.
     """
     is_player_turn = first_player()  # True if the player start playing
     brd_pc, brd_player, brd_pc_view, brd_player_view = build_brd()
@@ -339,13 +333,13 @@ def boat_placement_player(brd_player: list[list[int]])\
         if boat_number_entry:  # not empty
             if boat_number_entry.isnumeric():
                 boat_number = int(boat_number_entry)
-                if 1 <= boat_number <= 5:
+                if 1 <= boat_number <= 5:  # if the boat number corresponds to a boat
                     boat_name = number_to_boat[boat_number]
                     if not boats_status[boat_name]:  # if the boat is not already placed
                         brd_player, boats_player, placed = place_boat(brd_player, boat_name, boats_player)
                         boats_status[boat_name] = placed  # updates the boat's status (we can exit the place_boat loop).
                         reset_boat_placement_player_screen(boats_player)
-                    else:
+                    else:  # if the boat is already placed
                         answered = False
                         reset_boat_placement_player_screen(boats_player)
                         while not answered:
@@ -378,13 +372,14 @@ def boat_placement_player(brd_player: list[list[int]])\
     
     reset_boat_placement_player_screen(boats_player, replacing=True)
 
-    # Ask the user if he/she want to replace a boat (While)
+    # Ask the user if he/she want to replace a boat.
     keep_modifying = True
     while keep_modifying:
-        replaced = exiting = False
+        replaced = exiting = False  # reset the variables for the loops below.
+        
         want_replace = user_input("Voulez-vous replacer l'un de vos navires ? (Y/n): ")
         want_replace = want_replace.upper().replace(' ', '')
-        if 'Y' == want_replace:
+        if 'Y' == want_replace:  # He/she wants to replace a boat.
             while not (exiting or replaced):
                 print("Saisissez le numéro du bateau que vous voulez replacer:")
                 for i, name in enumerate(boats_status, 1):
@@ -467,8 +462,16 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict[st
                     brd_pc[letter][number] = 1
                     boats_pc[name][(letter, number)] = False
                 i += 1
-
-    sleep(3)  # simulation of the pc placing its boats
+    
+    ended = False
+    while not ended:  # devil's loop. Patience was the key…
+        try:
+            sleep(3)  # simulation of the pc placing its boats
+            ended = True
+        except KeyboardInterrupt:
+            print("Veuillez faire preuve d'un peu de patience. Merci")
+        except EOFError:
+            print("Veuillez faire preuve d'un peu de patience. Merci")
 
     return brd_pc, boats_pc
 
