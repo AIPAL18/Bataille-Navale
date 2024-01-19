@@ -65,6 +65,8 @@ def select_mode() -> int:
         else:  # empty
             error("Vous devez entrer une valeur !")
 
+    log(f"mode: {mode}")
+
     return mode
 
 
@@ -95,7 +97,9 @@ def select_level() -> int:
                 error("La valeur entrée doit être un nombre !")
         else:  # empty
             error("Vous devez entrer une valeur !")
-
+    
+    log(f"Level: {level}")
+    
     return level
 
 
@@ -269,7 +273,9 @@ def first_player() -> bool:
     else:
         print("\n\nVotre adversaire jouera en premier\n")
     wait_for_user()
-
+    
+    log(f"First player (is_player_round): {is_player_round}")
+    
     return is_player_round
 
 
@@ -412,7 +418,10 @@ def boat_placement_player(brd_player: list[list[int]])\
         else:
             reset_boat_placement_player_screen(boats_player)
             error(f"Répondez à la question par \'Y\' (Oui) ou \'N\' (Non) uniquement: {want_replace} !")
-
+    
+    log(f"Player's game board: {brd_player}")
+    log(f"Player's boats: {boats_player}")
+    
     return brd_player, boats_player
 
 
@@ -477,6 +486,9 @@ def boat_placement_pc(brd_pc: list[list[int]]) -> tuple[list[list[int]], dict[st
         except EOFError:
             print("Veuillez faire preuve d'un peu de patience. Merci")
 
+    log(f"Computer's game board: {brd_pc}")
+    log(f"Computer's boats: {boats_pc}")
+    
     return brd_pc, boats_pc
 
 
@@ -517,7 +529,11 @@ def player_turn(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player
                 reset_player_turn_screen(brd_player, brd_player_view)
                 error("Vous devez tirer sur le plateau (de A1 à J10) !")
     
+    log(f"Player's target: {target}")
+    
     boats_pc_dict, hit = is_hit(brd_pc, boats_pc_dict, target)
+    
+    log(f"Result: {hit}")
     
     if hit:
         brd_pc[target[0]][target[1]] = 3
@@ -574,7 +590,11 @@ def pc_turn(brd_player: list[list[int]], brd_pc_view: list[list[int]],
     elif level == 3:
         target = impossible_level(boat_player_dict)
     
+    log(f"Computer's target: {target}")
+    
     boat_player_dict, hit = is_hit(brd_player, boat_player_dict, target)
+    
+    log(f"Result: {hit}")
 
     if hit:
         brd_player[target[0]][target[1]] = 3
@@ -629,9 +649,11 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]], display: bool = Tr
     if display and pc_won:  # Shame on the team (WE lost)
         clear()
         print("MAYDAY, MAYDAY, MAYDAY! Tous nos navires sont en train de couler Général! Nous avons perdu...")
+        log("Computer won")
     elif display and player_won:  # Glory on the leader (YOU won)
         clear()
         print("Bravo Général! Vous avez gagné !")
+        log("Player won")
 
     return pc_won or player_won
 
@@ -669,14 +691,15 @@ def will_replay() -> bool:
     replay = replay.upper()
     
     if 'N' in replay:
-        
+        log(f"Will replay: True")
         return False
     elif 'Y' in replay:
-        
+        log(f"Will replay: False")
         return True
     else:  # if neither N nor Y are contained in "replay".
         print("Nous n'avons pas comprit, mais comme le jeu est incroyable, nous allons vous faire rejouer!\n"
               "(Pour annuler presser les touches CTRL et C simultanément)")  # and it is not a joke… although…
-        wait_for_user()
+        log(f"Will replay: True (forced)")
         
+        wait_for_user()
         return True

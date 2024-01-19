@@ -13,7 +13,7 @@ yellow_color = Fore.YELLOW
 
 def log(*args) -> None:
     """
-    Logs the error in the log file.
+    Logs the error in the log file to rebuild error(s) if needed.
     :param args: Message to log.
     """
     with open(".logs", "a", encoding="utf-8") as file:  # creates the file if it doesn't exist.
@@ -109,7 +109,7 @@ def user_input(*args, clr: str = default_colour) -> str:
             
             if will_quit:
                 print("Au revoir !")
-                log("Exiting")
+                log("Exiting - Via error")
                 quit()  # quits the program properly
 
     return entry
@@ -290,7 +290,7 @@ def clean_to_exit() -> None:
     """
     Resets the colours of the command prompt to exit the program properly.
     """
-    log("Exiting")
+    log("Exiting - End of the game")
     clear(False)
     colour(Fore.RESET, Back.RESET)
 
