@@ -50,6 +50,55 @@ def clear(will_break_line=True) -> None:
         print("")  # break line (for the style)
 
 
+def user_input(*args, colours=default_color) -> str:
+    """
+    
+    :param args:
+    :param colours:
+    :return:
+    """
+    finish = False
+    entry = ""
+    
+    # if the user raises an error and enters "N", it asks again, while allowing the user to raise an error.
+    while not finish:
+        error_raised = answered = will_quit = False
+        colour(colours)
+        for arg in args:
+            print(arg, end="")
+        
+        try:
+            entry = input()
+            finish = True
+        except KeyboardInterrupt:
+            error_raised = True
+        except EOFError:
+            error_raised = True
+        
+        if error_raised:  # it may be an error
+            while not answered:
+                colour(yellow_color)
+                # for security reasons (mainly development errors), KeyboardInterrupt and EOFError are not processed.
+                validation = input("\nVoulez-vous vraiment quitté le jeu ? (Y/n): ")
+                colour(Fore.RESET, Back.RESET)  # resets the colours of the command prompt.
+                validation = validation.upper().replace(' ', '')
+                
+                if 'N' == validation:
+                    print("Bonne reprise !\n")
+                    answered = True
+                elif 'Y' == validation:
+                    will_quit = True
+                    answered = True
+                else:
+                    print("Nous n'avons pas comprit...")
+            
+            if will_quit:
+                print("Au revoir !")
+                quit()  # quits the program properly
+
+    return entry
+
+
 def wait_for_user() -> None:
     """
     Pause the game.
@@ -57,33 +106,6 @@ def wait_for_user() -> None:
     # waits until the user press Enter & prays that he doesn't raise an error 🤞.
     user_input('\n(pressez Entrer)', colours=pause_color)
     colour(default_color)
-
-
-def init() -> bool:
-    """
-    Initialise the game. Launches the welcome screen with credits, displays game recommendations and colours the screen.
-    :return: True.
-    """
-    clear(False)
-    system("TITLE Bataille Navale")
-    colour(default_color)
-    print("""
-        \t##########################################################
-        \t#                    BATAILLE NAVALE                     #
-        \t#                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                     #
-        \t#                                                        #
-        \t#           Par Elie Ruggiero et Enzo Chauvet            #
-        \t#                                                        #
-        \t#              Décembre 2023 - Janvier 2024              #
-        \t##########################################################
-    """, end="\n\n")
-    print("Nous vous conseillons, pour avoir une meilleur expérience, de démarrer ce programme "
-          "dans un invite de commande.\n")
-    print("Pour arrêter le jeu, pressez CTRL+C.\n")
-    
-    wait_for_user()
-    
-    return True
 
 
 def display_brd_id(boats_player: dict[str: dict[tuple[int, int]: bool]]) -> None:
@@ -189,61 +211,66 @@ def display_brd(brd: list[list[int]], is_view: bool = True) -> None:
     print()  # return to line
 
 
+def init() -> bool:
+    """
+    Initialise the game. Launches the welcome screen with credits, displays game recommendations and colours the screen.
+    :return: True.
+    """
+    clear(False)
+    system("TITLE Bataille Navale")
+    colour(default_color)
+    print("""
+        \t##########################################################
+        \t#                    BATAILLE NAVALE                     #
+        \t#                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                     #
+        \t#                                                        #
+        \t#           Par Elie Ruggiero et Enzo Chauvet            #
+        \t#                                                        #
+        \t#              Décembre 2023 - Janvier 2024              #
+        \t##########################################################
+    """, end="\n\n")
+    print("Nous vous conseillons, pour avoir une meilleur expérience, de démarrer ce programme "
+          "dans un invite de commande.\n")
+    print("Pour arrêter le jeu, pressez CTRL+C.\n")
+    
+    wait_for_user()
+    
+    return True
+
+
+def reset_boat_placement_player_screen(boats_player: dict[str: dict[tuple[int, int]: bool]], replacing: bool = False) \
+        -> None:
+    """
+    Reset the command prompt for boat_placement_player().
+    :param boats_player: pass.
+    :param replacing: pass.
+    """
+    clear()
+    if not replacing:
+        print("Commencez par placer vos bateaux:\n")
+    
+    print("Les bateaux peuvent être orienté verticalement ou horizontalement exclusivement.",
+          "Pour sortir, saisissez \'exit\'.", sep="\n")
+    display_brd_id(boats_player)
+
+
+def reset_player_round_screen(brd_player: list[list[int]], brd_player_view: list[list[int]]):
+    """
+
+    :param brd_player: Player's game board.
+    :param brd_player_view: Player's game board view.
+    :return:
+    """
+    clear()
+    print("C'est votre tour, Général!")
+    display_brd(brd_player_view)
+    display_brd(brd_player, is_view=False)
+
+
 def clean() -> None:
     """
     Resets the colours of the command prompt.
     """
     clear(False)
     colour(Fore.RESET, Back.RESET)
-
-
-def user_input(*args, colours=default_color) -> str:
-    """
-    
-    :param args:
-    :param colours:
-    :return:
-    """
-    finish = False
-    entry = ""
-    
-    # if the user raises an error and enters "N", it asks again, while allowing the user to raise an error.
-    while not finish:
-        error_raised = answered = will_quit = False
-        colour(colours)
-        for arg in args:
-            print(arg, end="")
-        
-        try:
-            entry = input()
-            finish = True
-        except KeyboardInterrupt:
-            error_raised = True
-        except EOFError:
-            error_raised = True
-        
-        if error_raised:  # it may be an error
-            while not answered:
-                colour(yellow_color)
-                # for security reasons (mainly development errors), KeyboardInterrupt and EOFError are not processed.
-                validation = input("\nVoulez-vous vraiment quitté le jeu ? (Y/n): ")
-                colour(Fore.RESET, Back.RESET)  # resets the colours of the command prompt.
-                validation = validation.upper().replace(' ', '')
-                
-                if 'N' == validation:
-                    print("Bonne reprise !\n")
-                    answered = True
-                elif 'Y' == validation:
-                    will_quit = True
-                    answered = True
-                else:
-                    print("Nous n'avons pas comprit...")
-            
-            if will_quit:
-                print("Au revoir !")
-                quit()  # quits the program properly
-
-    return entry
-
-
 
