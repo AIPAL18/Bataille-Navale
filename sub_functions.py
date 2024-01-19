@@ -401,6 +401,7 @@ def intermediate_level(brd_pc_view: list[list[int]]) -> tuple[int, int]:
 def difficult_level(boat_player_dict: dict[str: dict[tuple[int, int]: bool]]) -> tuple[int, int]:
     """
     Computes the coordinates that the computer must shoot with precision.
+    :param boat_player_dict: Dictionary storing the boats.
     :return: target.
     """
     # The values are saved in variables for reasons of clarity and ease of access to readjust parameters if necessary.

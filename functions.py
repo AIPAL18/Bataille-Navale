@@ -278,6 +278,7 @@ def build_brd() -> tuple[list[list[int]], list[list[int]], list[list[int]], list
     Build the game boards.
     :return: brd_pc, brd_player, brd_pc_view, brd_player_view.
     """
+    # all the game board are different.
     brd_pc = [[0 for _ in range(10)] for _ in range(10)]
     brd_player = [[0 for _ in range(10)] for _ in range(10)]
     brd_pc_view = [[0 for _ in range(10)] for _ in range(10)]
@@ -327,14 +328,17 @@ def boat_placement_player(brd_player: list[list[int]])\
                 colour(default_colour)
             else:  # not placed yet
                 print(f"\t◯ {i} -> {name}{' ' * (22 - len(name))}({boats_size_list[name]} cases)")
+        
         boat_number_entry = user_input("-> ")
         boat_number_entry = boat_number_entry.upper().replace(' ', '')
         
         if boat_number_entry:  # not empty
             if boat_number_entry.isnumeric():
                 boat_number = int(boat_number_entry)
+                
                 if 1 <= boat_number <= 5:  # if the boat number corresponds to a boat
                     boat_name = number_to_boat[boat_number]
+                    
                     if not boats_status[boat_name]:  # if the boat is not already placed
                         brd_player, boats_player, placed = place_boat(brd_player, boat_name, boats_player)
                         boats_status[boat_name] = placed  # updates the boat's status (we can exit the place_boat loop).
@@ -484,8 +488,8 @@ def player_turn(brd_pc: list[list[int]], brd_player: list[list[int]], brd_player
     :param brd_pc: Computer's game board.
     :param brd_player: Player's game board.
     :param brd_player_view: Player's game board view.
-    :param boats_pc_dict:
-    :param cheat:
+    :param boats_pc_dict: Dictionary storing the boats.
+    :param cheat: if the cheat is activated.
     :return: brd_pc, brd_player_view.
     """
     reset_player_turn_screen(brd_player, brd_player_view)
@@ -553,8 +557,8 @@ def pc_turn(brd_player: list[list[int]], brd_pc_view: list[list[int]],
     :param brd_player: Player's game board.
     :param brd_pc_view: Computer's game board view.
     :param brd_player_view: Player's game board view.
-    :param boat_player_dict: pass.
-    :param level: int.
+    :param boat_player_dict: Dictionary storing the boats.
+    :param level: Level chosen by the player.
     :return: brd_player, brd_pc_view.
     """
     clear()
@@ -607,19 +611,19 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]], display: bool = Tr
     Returns True and announce the winner if there's a winner, which will stop the game.
     :param brd_player: Player's game board.
     :param brd_pc: Computer's game board.
-    :param display: print ?
+    :param display: If the function will print out the winner if any.
     :return: True if someone won.
     """
     pc_won = True
     for row in brd_player:
         for cell in row:
-            if cell == 1:
+            if cell == 1:  # if a cell is intact.
                 pc_won = False
 
     player_won = True
     for row in brd_pc:
         for cell in row:
-            if cell == 1:
+            if cell == 1:  # if a cell is intact.
                 player_won = False
 
     if display and pc_won:  # Shame on the team (WE lost)
@@ -634,9 +638,9 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]], display: bool = Tr
 
 def accuracy(brd_view: list[list[int]]) -> float:
     """
-    Calculates the accuracy of the player and the computer.
-    :param brd_view: list[list[int]]
-    :return: float
+    Calculates the accuracy of the player or the computer.
+    :param brd_view: Game board view.
+    :return: accuracy.
     """
     water_shots = success_shots = result = 0
 
@@ -649,7 +653,8 @@ def accuracy(brd_view: list[list[int]]) -> float:
                 success_shots += 1
 
     total_shots = water_shots + success_shots
-    if total_shots > 0:
+    
+    if total_shots > 0:  # Division by zero is illegal (for Python) !
         result = success_shots / total_shots
     
     return round(result, 2)
@@ -657,17 +662,21 @@ def accuracy(brd_view: list[list[int]]) -> float:
 
 def will_replay() -> bool:
     """
-    
-    :return:
+    Asks the user if he/she wants to play again.
+    :return: will_replay.
     """
     replay = user_input("Voulez-vous rejouer ? (Y/n): ")
     replay = replay.upper()
+    
     if 'N' in replay:
+        
         return False
     elif 'Y' in replay:
+        
         return True
     else:  # if neither N nor Y are contained in "replay".
         print("Nous n'avons pas comprit, mais comme le jeu est incroyable, nous allons vous faire rejouer!\n"
-              "(Pour annuler presser les touches CTRL et C simultanément)")
+              "(Pour annuler presser les touches CTRL et C simultanément)")  # and it is not a joke… although…
         wait_for_user()
+        
         return True
