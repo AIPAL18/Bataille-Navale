@@ -1,6 +1,5 @@
 from os import system
 from colorama import Fore, Back
-from icecream import ic
 
 clear_cmd = "clear"
 default_color = Fore.LIGHTGREEN_EX + Back.BLACK
@@ -9,6 +8,13 @@ water_color = Fore.LIGHTBLUE_EX
 intact = Fore.GREEN
 pause_color = Fore.LIGHTBLACK_EX
 yellow_color = Fore.YELLOW
+
+
+def log(*args):
+    with open(".logs", "a", encoding="utf-8") as file:
+        for arg in args:
+            file.write(arg.replace("\n", "\\n") + "\n")
+        file.close()
 
 
 def colour(*args) -> None:

@@ -1,7 +1,6 @@
 from ui import *
-from random import randint, choice, choices
+from random import choice, choices
 import re
-from time import sleep, time
 
 
 def is_space_free(brd, start: tuple[int, int], end: tuple[int, int], orientation: int,

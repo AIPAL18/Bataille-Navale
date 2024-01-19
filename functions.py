@@ -1,4 +1,6 @@
 from sub_functions import *
+from time import sleep, time
+from random import randint
 
 
 def select_mode() -> int:
