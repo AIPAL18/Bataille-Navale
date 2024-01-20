@@ -186,7 +186,7 @@ def accuracy_mode(level: int) -> None:
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
+            brd_player, brd_pc_view = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
@@ -214,25 +214,26 @@ def limited_mode(level: int) -> None:
     brd_pc, boats_pc_dict = boat_placement_pc(brd_pc)
 
     # Game loop
-    won = False
-    for _ in range(35):
+    running = True
+    cycle = 0
+    while running:
         if is_player_turn:  # player's round
             brd_pc, brd_player_view = player_turn(brd_pc, brd_player, brd_player_view, boats_pc_dict)
             is_player_turn = False
 
         else:  # computer's round
-            brd_player = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
+            brd_player, brd_pc_view = pc_turn(brd_player, brd_pc_view, brd_player_view, boats_player_dict, level)
             is_player_turn = True
 
         # Check to see if anyone has won and if so, stop the game.
-        if win(brd_player, brd_pc):
-            won = True
-    
-    if not won:
-        clear()
-        colour(red_color)
-        print("Vous avez perdu ! 35 tours sont passés sans que vous ne gagniez.")
-        colour(default_colour)
+        if win(brd_player, brd_pc, False) and cycle <= 35:
+            win(brd_player, brd_pc)
+        elif cycle > 35:
+            colour(red_color)
+            print("Vous avez perdu ! 35 tours sont passés sans que vous ne gagniez.")
+            colour(default_colour)
+        
+        cycle += 1
 
 
 def cheat_mode(level: int) -> None:
@@ -634,6 +635,8 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]], display: bool = Tr
     :param display: If the function will print out the winner if any.
     :return: True if someone won.
     """
+    log(f"win brd_player: {brd_player}")
+    log(f"win brd_pc: {brd_pc}")
     pc_won = True
     for row in brd_player:
         for cell in row:
@@ -649,11 +652,14 @@ def win(brd_player: list[list[int]], brd_pc: list[list[int]], display: bool = Tr
     if display and pc_won:  # Shame on the team (WE lost)
         clear()
         print("MAYDAY, MAYDAY, MAYDAY! Tous nos navires sont en train de couler Général! Nous avons perdu...")
-        log("Computer won")
     elif display and player_won:  # Glory on the leader (YOU won)
         clear()
         print("Bravo Général! Vous avez gagné !")
-        log("Player won")
+    
+    if pc_won:
+        log("win: Computer won")
+    else:
+        log("win: Player won")
 
     return pc_won or player_won
 

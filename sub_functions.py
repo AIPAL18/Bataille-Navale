@@ -260,6 +260,7 @@ def is_hit(brd: list[list[int]], boat_dict: dict[str: dict[tuple[int, int]: bool
     :return: boat_dict, If the target touches a square on a boat.
     """
     # intact or hit or sunk
+    log(f"Is hit, brd: {brd}")
     hit = brd[target[0]][target[1]] == 1 or brd[target[0]][target[1]] == 3 or brd[target[0]][target[1]] == 4
     if hit:
         for boat_name, boat in zip(boat_dict, boat_dict.values()):
@@ -300,6 +301,7 @@ def boats_sunk(brd: list[list[int]], boats_dict: dict[str: dict[tuple[int, int]:
     :param is_view: True if the game board is a view.
     :return: brd, name_sunk of the new boat sunk, if any.
     """
+    log(f"Boat sunk: {brd}")
     name_sunk = ""
     
     for boat_name, boat in boats_dict.items():
@@ -312,6 +314,8 @@ def boats_sunk(brd: list[list[int]], boats_dict: dict[str: dict[tuple[int, int]:
                     brd[coord[0]][coord[1]] = 3  # sunk the boat on the brd
                 else:
                     brd[coord[0]][coord[1]] = 4  # sunk the boat on the brd
+    
+    log(f"Boat sunk: {brd}")
     
     return brd, name_sunk
 
@@ -391,10 +395,8 @@ def intermediate_level(brd_pc_view: list[list[int]]) -> tuple[int, int]:
         """
         regarder quelles cases ne sont pas possible en fonction des tailles de bateaux qu'il reste !
         """
-        print("we know...")
         return choice(should_shoot(hit_coord, brd_pc_view))
     else:  # hit_coord is empty == False
-        print("au pif")
         return easy_level(brd_pc_view)
 
 
